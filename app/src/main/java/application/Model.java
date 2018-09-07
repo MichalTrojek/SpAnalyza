@@ -1,4 +1,4 @@
-package com.mtr.skladovypomocnikanalyza;
+package application;
 
 import android.content.Context;
 import android.widget.EditText;
@@ -6,20 +6,28 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+
+import application.shared.ArticleRow;
+import application.shared.ExportArticle;
 
 public class Model {
 
-    private String data;
-    private List<ArticleRow> articles = new ArrayList<>();
-    private List<ArticleRow> articlesDatabase = new ArrayList<>();
+
+    private HashMap<String, ArticleRow> analysis = new HashMap<>();
+    private HashMap<String, ArticleRow> data = new HashMap<>();
     private Settings settings;
     private Context context;
     private ArticleRow selectedItem;
-//    new ArticleRow("Není v analýze", "Není v analýze", "Není v analýze", "Není v analýze", "Není v analýze", "Není v analýze", "Není v analýze", "Není v analýze", "Není v analýze");
+
 
     private ArrayList<ExportArticle> returns = new ArrayList<>();
     private ArrayList<ExportArticle> orders = new ArrayList<>();
+
+    public Model() {
+        analysis = new HashMap<>();
+        data = new HashMap<>();
+    }
 
 
     private static class LazyHolder {
@@ -44,8 +52,28 @@ public class Model {
     }
 
 
-    public void setData(String data) {
+    public void setData(HashMap<String, ArticleRow> data) {
         this.data = data;
+    }
+
+    public HashMap<String, ArticleRow> getData() {
+        return this.data;
+    }
+
+    public void setAnalysis(HashMap<String, ArticleRow> analysis) {
+        this.analysis = analysis;
+    }
+
+    public HashMap<String, ArticleRow> getAnalysis() {
+        return this.analysis;
+    }
+
+    public ArrayList<ExportArticle> getOrders() {
+        return this.orders;
+    }
+
+    public ArrayList<ExportArticle> getReturns() {
+        return this.returns;
     }
 
 
@@ -58,45 +86,23 @@ public class Model {
         returns.clear();
     }
 
-    //articles.add(new ArticleRow(temp[1], temp[0], "", "", "", "", "", "", ""));
-
-
-    public void convertStringToList() {
-        String[] temp = data.split("~");
-        for (String s : temp) {
-            String[] line = s.split(";");
-            if (line.length == 9) {
-                articles.add(new ArticleRow(line[0], line[1], line[2], line[3], line[4], line[5],
-                        line[6], line[7],
-                        line[8]));
-            } else {
-                articles.add(new ArticleRow(line[0], line[1], line[2], line[3], line[4], line[5],
-                        line[6], line[7],
-                        "empty"));
-            }
-        }
-    }
-
 
     public void updateDisplay(EditText eanInput, TextView bookNameTextView, TextView bookEanTextView, TextView totalAmountTextView, TextView soldAmountTextView, TextView supplierTextView, TextView dateOfLastSaleTextView, TextView dateofLastDeliveryTextView, TextView receivedAsTextView) {
         String ean = eanInput.getText().toString();
-        ArticleRow a = Model.getInstance().findEan(ean);
-        if (a.getEan().equalsIgnoreCase("není v analýze")) {
-            Toast.makeText(context, "Není v analýze", Toast.LENGTH_SHORT).show();
+        ArticleRow a = findEan(ean);
+        if (a.getEan().equalsIgnoreCase("neznamy")) {
+            Toast.makeText(context, "Položka není v systému", Toast.LENGTH_SHORT).show();
         } else {
             bookNameTextView.setText("Název: " + a.getName());
             bookEanTextView.setText("EAN: " + a.getEan());
-            totalAmountTextView.setText("Stav skladu: " + a.getTotalAmount());
-            soldAmountTextView.setText("Prodej za období: " + a.getSoldAmount());
-            supplierTextView.setText("Dodavatel: " + a.getSupplier());
-            dateOfLastSaleTextView.setText("Datum posledního prodeje: " + a.getDateOfLastSale());
-            dateofLastDeliveryTextView.setText("Datum posledního příjmu: " + a.getDateOfLastDelivery());
-            receivedAsTextView.setText("Přijmuto jako: " + pickConsignmentOrSale(a));
+            totalAmountTextView.setText(String.format("Stav skladu: %s   Příjem: %s", a.getTotalAmount(), a.getDateOfLastDelivery()));
+            soldAmountTextView.setText(String.format("Prodeje: %s   Poslední prodej: %s", a.getSoldAmount(), a.getDateOfLastSale()));
+            supplierTextView.setText(String.format("Dodavatel: %s (%s)", a.getSupplier(), pickConsignmentOrSale(a)));
         }
     }
 
     private String pickConsignmentOrSale(ArticleRow a) {
-        String consignmentOrSale = "Není v analýze";
+        String consignmentOrSale = "";
         if (a.getOrderOfLastDelivery().equalsIgnoreCase("1512")) {
             consignmentOrSale = "Pevno";
         } else if (a.getOrderOfLastDelivery().equalsIgnoreCase("1514")) {
@@ -121,16 +127,22 @@ public class Model {
     }
 
     public void saveOrderItem(String orderAmount) {
-//        if (selectedItem != null) {
         if (orders.isEmpty()) {
             orders.add(new ExportArticle(selectedItem.getEan(), selectedItem.getName(), selectedItem.getSoldAmount(), selectedItem.getTotalAmount(), selectedItem.getPrice(), selectedItem.getSupplier(), selectedItem.getDateOfLastSale(), selectedItem.getDateOfLastDelivery(), selectedItem.getOrderOfLastDelivery(), orderAmount));
         } else {
             iterateListForMatch(selectedItem.getEan(), orderAmount, false);
         }
-//        } else {
-//            Toast.makeText(context, "Není v analýze", Toast.LENGTH_SHORT).show();
-//        }
+    }
 
+    public void reset() {
+        if (data != null) {
+            this.data.clear();
+        }
+
+        if (analysis != null) {
+            this.analysis.clear();
+        }
+        selectedItem = new ArticleRow("neznamy", "neznamy", "neznamy", "neznamy", "neznamy", "neznamy", "neznamy", "neznamy", "neznamy");
     }
 
     private void iterateListForMatch(String ean, String exportAmount, boolean isReturn) {
@@ -141,7 +153,6 @@ public class Model {
     private boolean containsEan = false;
 
     private void searchListForItemByEan(String ean, String exportAmount, boolean isReturn) {
-
         if (isReturn) {
             for (int i = 0; i < returns.size(); i++) {
                 ExportArticle a = returns.get(i);
@@ -172,52 +183,23 @@ public class Model {
                 returns.add(0, new ExportArticle(selectedItem.getEan(), selectedItem.getName(), selectedItem.getSoldAmount(), selectedItem.getTotalAmount(), selectedItem.getPrice(), selectedItem.getSupplier(), selectedItem.getDateOfLastSale(), selectedItem.getDateOfLastDelivery(), selectedItem.getOrderOfLastDelivery(), exportAmount));
             } else {
                 orders.add(0, new ExportArticle(selectedItem.getEan(), selectedItem.getName(), selectedItem.getSoldAmount(), selectedItem.getTotalAmount(), selectedItem.getPrice(), selectedItem.getSupplier(), selectedItem.getDateOfLastSale(), selectedItem.getDateOfLastDelivery(), selectedItem.getOrderOfLastDelivery(), exportAmount));
-
             }
         }
     }
-
 
     private ArticleRow findEan(String ean) {
-        for (ArticleRow a : articles) {
-            if (ean.equalsIgnoreCase(a.getEan()) && !ean.equalsIgnoreCase("Není v analýze")) {
-                selectedItem = a;
-                return a;
-            }
+        ArticleRow item;
+        item = analysis.get(ean);
+        if (item == null) {
+            item = data.get(ean);
         }
-        return new ArticleRow("Není v analýze", "Není v analýze", "Není v analýze", "Není v analýze", "Není v analýze", "Není v analýze", "Není v analýze", "Není v analýze", "Není v analýze");
+
+        if (item == null) {
+            item = new ArticleRow("neznamy", "neznamy", "neznamy", "neznamy", "neznamy", "neznamy", "neznamy", "neznamy", "neznamy");
+        }
+        selectedItem = item;
+        return item;
     }
 
-//    private ArticleRow findEan(String ean) {
-//        int i = 0;
-//        for (ArticleRow a : articlesDatabase) {
-//            if (i == 1) {
-//                break;
-//            }
-//            i++;
-//            System.out.println("name " + a.getName() + " ean " + a.getEan());
-//            if (ean.equalsIgnoreCase(a.getEan()) && !ean.equalsIgnoreCase("Není v analýze")) {
-//                selectedItem = a;
-//                return a;
-//            }
-//        }
-//        return new ArticleRow("Není v analýze", "Není v analýze", "Není v analýze", "Není v analýze", "Není v analýze", "Není v analýze", "Není v analýze", "Není v analýze", "Není v analýze");
-//    }
-
-
-    public String createStringFromLists() {
-        StringBuilder sb = new StringBuilder();
-
-        for (ExportArticle e : returns) {
-            sb.append(e.getEan()).append(";").append(e.getName()).append(";").append(e.getSoldAmount()).append(";").append(e.getTotalAmount()).append(";").append(e.getPrice()).append(";").append(e.getSupplier()).append(";").append(e.getDateOfLastSale()).append(";").append(e.getDateOfLastDelivery()).append(";").append(e.getOrderOfLastDelivery()).append(";").append(e.getExportAmount()).append(";").append("~");
-        }
-        sb.append("~o~");
-
-        for (ExportArticle e : orders) {
-            sb.append(e.getEan()).append(";").append(e.getName()).append(";").append(e.getSoldAmount()).append(";").append(e.getTotalAmount()).append(";").append(e.getPrice()).append(";").append(e.getSupplier()).append(";").append(e.getDateOfLastSale()).append(";").append(e.getDateOfLastDelivery()).append(";").append(e.getOrderOfLastDelivery()).append(";").append(e.getExportAmount()).append(";").append("~");
-
-        }
-        return sb.toString();
-    }
 
 }

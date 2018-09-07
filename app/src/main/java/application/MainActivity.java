@@ -1,4 +1,4 @@
-package com.mtr.skladovypomocnikanalyza;
+package application;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -13,14 +13,14 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -31,19 +31,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView bookNameTextView, bookEanTextView, totalAmountTextView, soldAmountTextView, supplierTextView, dateOfLastSaleTextView, dateofLastDeliveryTextView, receivedAsTextView, ipAddressTextView;
     private EditText inputIpAddress;
     private AlertDialog ipDialog;
+    private AlertDialog loadingDialog;
 
-    private List<ArticleRow> articles = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Model.getInstance().createSettings(this);
+        application.Model.getInstance().createSettings(this);
         editButton = (Button) findViewById(R.id.editButton);
         editButton.setOnClickListener(this);
 
 
-        Model.getInstance().setContext(this);
+        application.Model.getInstance().setContext(this);
+        createLoadingDialog();
         createIpAddressAlertDialog();
         setToolbar();
         setButtons();
@@ -54,25 +55,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         hideKeyboard(eanInput);
     }
 
-    //    @Override
-//    public void onStop() {
-//        super.onStop();
-//        Model.getInstance().saveData();
-//        Model.getInstance().saveBooleans(hasReturn, hasOrder);
-//    }
-//
-//    @Override
-//    public void onStart() {
-//        super.onStart();
-//        hideKeyboard(eanInput);
-//
-//    }
-
-//    @Override
-//    public void onSaveInstanceState(Bundle outState) {
-//        outState.putString("articles", convertArrayListToString());
-//        super.onSaveInstanceState(outState);
-//    }
 
     // This creates a dialog window that shows up after pressing network settings button
     private void createIpAddressAlertDialog() {
@@ -84,6 +66,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ipAddressTextView = (TextView) view.findViewById(R.id.ipAddressTextView);
         ipAddressTextView.setText("IP Adresa : " + Model.getInstance().getIp());
         ipDialog = new AlertDialog.Builder(this).setView(view).create();
+    }
+
+
+    private void createLoadingDialog() {
+        View view = getLayoutInflater().inflate(R.layout.loading_analysis_dialog, null);
+        ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
+        TextView loadingTextView = (TextView) view.findViewById(R.id.loadingTextView);
+        progressBar.setVisibility(View.VISIBLE);
+        loadingDialog = new AlertDialog.Builder(this).setView(view).create();
     }
 
     @Override
@@ -128,9 +119,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         bookEanTextView = (TextView) findViewById(R.id.bookEanTextView);
         totalAmountTextView = (TextView) findViewById(R.id.totalAmountTextView);
         supplierTextView = (TextView) findViewById(R.id.supplierTextView);
-        dateOfLastSaleTextView = (TextView) findViewById(R.id.dateOfLastSaleTextView);
-        dateofLastDeliveryTextView = (TextView) findViewById(R.id.dateofLastDeliveryTextView);
-        receivedAsTextView = (TextView) findViewById(R.id.receivedAsTextView);
+
         soldAmountTextView = (TextView) findViewById(R.id.soldAmountTextView);
     }
 
@@ -146,6 +135,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private boolean handleEnter(int keyCode, KeyEvent keyevent) {
+
         if ((keyevent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
             Model.getInstance().updateDisplay(eanInput, bookNameTextView, bookEanTextView, totalAmountTextView, soldAmountTextView, supplierTextView, dateOfLastSaleTextView, dateofLastDeliveryTextView, receivedAsTextView);
             hideKeyboard(eanInput);
@@ -157,6 +147,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private void setAds() {
+        MobileAds.initialize(this, "ca-app-pub-6403268384265634~6879673047");
         AdView adView = (AdView) findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
         adView.loadAd(adRequest);
@@ -254,24 +245,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void handleExportButton() {
-        DataSender sender = new DataSender(Model.getInstance().getIp(), this);
-        String data = Model.getInstance().createStringFromLists();
-        StringBuilder sb = new StringBuilder();
-        if (hasOrder) {
-            sb.append("obj");
+        if (!Model.getInstance().getOrders().isEmpty() || !Model.getInstance().getReturns().isEmpty()) {
+            Client export = new Client(Model.getInstance().getIp(), this, loadingDialog);
+            export.execute("export");
+        } else {
+            Toast.makeText(this, "Není co exportovat!", Toast.LENGTH_SHORT).show();
         }
 
-        if (hasReturn) {
-            sb.append("vr");
-        }
-
-        sender.execute(sb.toString() + data);
     }
 
     private void handleImportDataButton() {
-        DataReceiver dataReceiver = new DataReceiver(Model.getInstance().getIp(), this);
-        dataReceiver.execute("import");
+        Model.getInstance().reset();
+        Client client = new Client(Model.getInstance().getIp(), this, loadingDialog);
+        client.execute("analyza");
     }
+
 
     private void handleEditButton() {
         editDialog.show();

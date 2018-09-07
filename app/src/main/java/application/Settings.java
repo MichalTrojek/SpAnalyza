@@ -1,4 +1,4 @@
-package com.mtr.skladovypomocnikanalyza;
+package application;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -22,9 +22,6 @@ public class Settings {
         editor.putString("ip", ip);
         editor.apply();
     }
-
-
-
 
 
 }

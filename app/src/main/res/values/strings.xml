@@ -17,10 +17,12 @@
     <string name="backButton">Zpět</string>
     <string name="saveButton">Uložit</string>
     <string name="developedBy">(c) 2018, Michal Trojek</string>
-    <string name="version">Verze 0</string>
+    <string name="version">Verze 5</string>
     <string name="importDataButton">Nahrát data</string>
     <string name="editIpAddressButton">Změnit IP Adresu</string>
     <string name="inputIpAddressHint">Vlož IP Adresu</string>
     <string name="cancelButton">Zpět</string>
     <string name="deleteButton">Vymazat data</string>
+    <string name="loadingAnalysis">Nahrávám analýzu...</string>
+    <string name="loadingAnalyisisTitle">Nahrávání analýzy</string>
 </resources>

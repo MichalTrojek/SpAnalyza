@@ -1,7 +1,8 @@
-package com.mtr.skladovypomocnikanalyza;
+package application.shared;
 
 public class ExportArticle extends ArticleRow {
 
+    private static final long serialVersionUID = -9167557047115507192L;
     private String exportAmount;
 
     public ExportArticle(String ean, String name, String soldAmount, String totalAmount, String price, String supplier,

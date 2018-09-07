@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context="application.MainActivity">
 
 
     <include
@@ -34,6 +34,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
+        android:maxLength="30"
+        android:maxLines="1"
         android:text="@string/book_name"
         android:textSize="14sp"
         android:textStyle="bold"
@@ -89,7 +91,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             ads:adSize="BANNER"
-            ads:adUnitId="ca-app-pub-6403268384265634/9425005988"
+            ads:adUnitId="ca-app-pub-6403268384265634/9794321431"
             tools:layout_editor_absoluteX="32dp"
             tools:layout_editor_absoluteY="445dp" />
     </LinearLayout>
@@ -144,45 +146,13 @@
         app:layout_constraintStart_toStartOf="@+id/soldAmountTextView"
         app:layout_constraintTop_toBottomOf="@+id/soldAmountTextView" />
 
-    <TextView
-        android:id="@+id/dateOfLastSaleTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="@string/dateOfLastSale"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="@+id/supplierTextView"
-        app:layout_constraintTop_toBottomOf="@+id/supplierTextView" />
-
-    <TextView
-        android:id="@+id/dateofLastDeliveryTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="@string/dateOfLastDelivery"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="@+id/dateOfLastSaleTextView"
-        app:layout_constraintTop_toBottomOf="@+id/dateOfLastSaleTextView" />
-
-    <TextView
-        android:id="@+id/receivedAsTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="@string/receivedAs"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="@+id/dateofLastDeliveryTextView"
-        app:layout_constraintTop_toBottomOf="@+id/dateofLastDeliveryTextView" />
-
     <Button
         android:id="@+id/exportButton"
         style="@style/Widget.AppCompat.Button.Borderless.Colored"
         android:layout_width="120dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="32dp"
+        android:focusable="false"
         android:text="@string/exportButton"
         app:layout_constraintBottom_toBottomOf="@+id/importDataButton"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -193,6 +163,7 @@
         android:layout_width="130dp"
         android:layout_height="wrap_content"
         android:backgroundTint="#FF0000"
+        android:focusable="false"
         android:text="@string/deleteButton"
         app:layout_constraintBottom_toTopOf="@+id/exportButton"
         app:layout_constraintStart_toStartOf="@+id/importDataButton" />
