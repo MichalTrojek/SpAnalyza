@@ -136,6 +136,7 @@ public class Model {
 
     public void reset() {
         if (data != null) {
+            
             this.data.clear();
         }
 
