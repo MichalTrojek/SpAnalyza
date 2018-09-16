@@ -32,7 +32,6 @@ public class Client extends AsyncTask<String, Integer, Void> {
 
     @Override
     protected Void doInBackground(String... voids) {
-        Model.getInstance().reset();
         this.message = voids[0];
         if (voids[0].equalsIgnoreCase("analyza")) {
             handleAnalysisImport();
@@ -49,7 +48,6 @@ public class Client extends AsyncTask<String, Integer, Void> {
             ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
             Message message = (Message) objectInputStream.readObject();
             Model.getInstance().setAnalysis(message.getAnalysis());
-            Model.getInstance().setData(message.getData());
         } catch (UnknownHostException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -89,9 +87,9 @@ public class Client extends AsyncTask<String, Integer, Void> {
         loadingDialog.hide();
         if (connectedToServer && port == 9998) {
             if (Model.getInstance().getAnalysis() == null || Model.getInstance().getAnalysis().isEmpty()) {
-                Toast.makeText(context, "Nebyl vložen Excel soubor.", Toast.LENGTH_LONG).show();
+                Toast.makeText(context, "Nebyl vložen CSV soubor.", Toast.LENGTH_LONG).show();
             } else {
-                Toast.makeText(context, String.format("Data byla nahraná\nAnalyza: %d \nData: %d", Model.getInstance().getAnalysis().size(), Model.getInstance().getData().size()), Toast.LENGTH_LONG).show();
+                Toast.makeText(context, String.format("Data byla nahraná\nAnalyza: %d", Model.getInstance().getAnalysis().size()), Toast.LENGTH_LONG).show();
             }
         } else if (connectedToServer && port == 5678) {
             Toast.makeText(context, "Data byla vyexportováno.", Toast.LENGTH_LONG).show();
@@ -99,5 +97,6 @@ public class Client extends AsyncTask<String, Integer, Void> {
             Toast.makeText(context, "Připojení selhalo.", Toast.LENGTH_LONG).show();
         }
     }
+
 
 }

@@ -1,28 +1,36 @@
 <resources>
     <string name="app_name">SpAnalyza</string>
     <string name="input_ean">Vlož EAN</string>
-    <string name="book_name">Název: </string>
-    <string name="book_ean">EAN: </string>
-    <string name="total_amount">Stav skladu: </string>
-    <string name="sold_amount">Prodej za období: </string>
+    <string name="book_name"> </string>
+    <string name="book_ean"> </string>
+    <string name="total_amount"> </string>
+    <string name="sold_amount"></string>
+    <string name="supplier_name"></string>
     <string name="order_amount">Objednat</string>
     <string name="return_amount">Vrátit</string>
-    <string name="supplier_name">Dodavatel: </string>
-    <string name="dateOfLastSale">Datum posledního prodeje: </string>
-    <string name="dateOfLastDelivery">Datum posledního příjmu: </string>
-    <string name="receivedAs">Přijmuto jako: </string>
+
+
     <string name="settingsButton">Nastavení</string>
     <string name="edit">Změny</string>
-    <string name="exportButton">Exportovat</string>
+    <string name="exportButton">Export</string>
     <string name="backButton">Zpět</string>
     <string name="saveButton">Uložit</string>
     <string name="developedBy">(c) 2018, Michal Trojek</string>
-    <string name="version">Verze 5</string>
-    <string name="importDataButton">Nahrát data</string>
+    <string name="version">Verze: 9</string>
+    <string name="importDataButton">Import</string>
     <string name="editIpAddressButton">Změnit IP Adresu</string>
     <string name="inputIpAddressHint">Vlož IP Adresu</string>
     <string name="cancelButton">Zpět</string>
-    <string name="deleteButton">Vymazat data</string>
+    <string name="deleteButton">Vymazat</string>
     <string name="loadingAnalysis">Nahrávám analýzu...</string>
     <string name="loadingAnalyisisTitle">Nahrávání analýzy</string>
+
+
+    <string name="deleteOrders">Vymazat objednávky</string>
+    <string name="deleteReturns">Vymazat vratky</string>
+    <string name="ordersAmount">Objednávka: </string>
+    <string name="returnsAmount">Vratka: </string>
+    <string name="deleteAll">Vymazat všechna data</string>
+    <string name="deleteDialogBackButton">Zpět</string>
+
 </resources>

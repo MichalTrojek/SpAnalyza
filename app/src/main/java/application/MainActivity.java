@@ -1,5 +1,7 @@
 package application;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -26,12 +28,11 @@ import java.util.regex.Pattern;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private EditText eanInput;
-    private Button editButton, importDataButton, exportButton, deleteButton;
+    private Button editButton, deleteButton;
     private AlertDialog editDialog;
-    private TextView bookNameTextView, bookEanTextView, totalAmountTextView, soldAmountTextView, supplierTextView, dateOfLastSaleTextView, dateofLastDeliveryTextView, receivedAsTextView, ipAddressTextView;
+    private TextView bookNameTextView, bookEanTextView, totalAmountTextView, soldAmountTextView, supplierTextView, ipAddressTextView, amountInfoTextView;
     private EditText inputIpAddress;
-    private AlertDialog ipDialog;
-    private AlertDialog loadingDialog;
+    private AlertDialog ipDialog, loadingDialog, deleteDialog;
 
 
     @Override
@@ -46,6 +47,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         application.Model.getInstance().setContext(this);
         createLoadingDialog();
         createIpAddressAlertDialog();
+        createDeleteDialog();
         setToolbar();
         setButtons();
         setTextViews();
@@ -66,6 +68,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ipAddressTextView = (TextView) view.findViewById(R.id.ipAddressTextView);
         ipAddressTextView.setText("IP Adresa : " + Model.getInstance().getIp());
         ipDialog = new AlertDialog.Builder(this).setView(view).create();
+    }
+
+    private void createDeleteDialog() {
+        View view = getLayoutInflater().inflate(R.layout.delete_dialog, null);
+        view.findViewById(R.id.deleteAllButton).setOnClickListener(MainActivity.this);
+        view.findViewById(R.id.deleteOrdersButton).setOnClickListener(MainActivity.this);
+        view.findViewById(R.id.deleteReturnsButton).setOnClickListener(MainActivity.this);
+        view.findViewById(R.id.backDeleteButton).setOnClickListener(MainActivity.this);
+        deleteDialog = new AlertDialog.Builder(this).setView(view).create();
     }
 
 
@@ -90,6 +101,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.action_settings:
                 handleSettingsButton();
                 return true;
+            case R.id.importDataButton:
+                handleImportDataButton();
+                return true;
+            case R.id.exportButton:
+                handleExportButton();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
 
@@ -102,14 +119,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void setToolbar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.appbar);
+        toolbar.setTitle("SP");
         setSupportActionBar(toolbar);
     }
 
     private void setButtons() {
-        importDataButton = (Button) findViewById(R.id.importDataButton);
-        importDataButton.setOnClickListener(this);
-        exportButton = (Button) findViewById(R.id.exportButton);
-        exportButton.setOnClickListener(this);
         deleteButton = (Button) findViewById(R.id.deleteButton);
         deleteButton.setOnClickListener(this);
     }
@@ -117,10 +131,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void setTextViews() {
         bookNameTextView = (TextView) findViewById(R.id.bookNameTextView);
         bookEanTextView = (TextView) findViewById(R.id.bookEanTextView);
+        bookEanTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String text = bookEanTextView.getText().toString();
+                text = text.substring(4, 18).trim();
+                Toast.makeText(MainActivity.this, "EAN ULOŽEN.", Toast.LENGTH_SHORT).show();
+                ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipData clip = ClipData.newPlainText("ean", text);
+                clipboard.setPrimaryClip(clip);
+            }
+        });
         totalAmountTextView = (TextView) findViewById(R.id.totalAmountTextView);
         supplierTextView = (TextView) findViewById(R.id.supplierTextView);
-
         soldAmountTextView = (TextView) findViewById(R.id.soldAmountTextView);
+        amountInfoTextView = (TextView) findViewById(R.id.amountInfoTextView);
     }
 
 
@@ -132,12 +157,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 return handleEnter(keyCode, keyevent);
             }
         });
+
     }
 
     private boolean handleEnter(int keyCode, KeyEvent keyevent) {
-
         if ((keyevent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-            Model.getInstance().updateDisplay(eanInput, bookNameTextView, bookEanTextView, totalAmountTextView, soldAmountTextView, supplierTextView, dateOfLastSaleTextView, dateofLastDeliveryTextView, receivedAsTextView);
+            clearAllTextViews();
+            Model.getInstance().updateDisplay(eanInput, bookNameTextView, bookEanTextView, totalAmountTextView, soldAmountTextView, supplierTextView);
             hideKeyboard(eanInput);
             eanInput.setText("");
             return true;
@@ -193,8 +219,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.editIpButton:
                 handleEditIpButton();
                 break;
+            case R.id.deleteOrdersButton:
+                handleDeleteOrdersButton();
+                break;
+            case R.id.deleteAllButton:
+                handleDeleteAllButton();
+                break;
+            case R.id.deleteReturnsButton:
+                handleDeleteReturnsButton();
+                break;
             case R.id.deleteButton:
                 handleDeleteButton();
+                break;
+            case R.id.backDeleteButton:
+                handleBackDeleteButton();
                 break;
             default:
                 break;
@@ -202,12 +240,52 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    public void handleBackDeleteButton() {
+        deleteDialog.hide();
+    }
+
+
+    public void handleDeleteAllButton() {
+        if (!Model.getInstance().getReturns().isEmpty() || !Model.getInstance().getOrders().isEmpty()) {
+            Model.getInstance().clearReturns();
+            Model.getInstance().clearOrders();
+            hasReturn = false;
+            hasReturn = false;
+            updateAmountInfo();
+            deleteDialog.hide();
+            Toast.makeText(this, "Všechna data byla vymazána.", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Vratka i objednavka jsou prázdné.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void handleDeleteReturnsButton() {
+        if (!Model.getInstance().getReturns().isEmpty()) {
+            Model.getInstance().clearReturns();
+            hasReturn = false;
+            updateAmountInfo();
+            deleteDialog.hide();
+            Toast.makeText(this, "Data ve vratce byla vymazána.", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Vratka je prázdná.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void handleDeleteOrdersButton() {
+        if (!Model.getInstance().getOrders().isEmpty()) {
+            Model.getInstance().clearOrders();
+            hasOrder = false;
+            updateAmountInfo();
+            deleteDialog.hide();
+            Toast.makeText(this, "Data v objednávce byla vymazána.", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Objednávka je prázdná.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
 
     private void handleDeleteButton() {
-        Model.getInstance().deleteData();
-        hasReturn = false;
-        hasOrder = false;
-        Toast.makeText(this, "Data byla vymazána", Toast.LENGTH_SHORT).show();
+        deleteDialog.show();
     }
 
     private void handleEditIpButton() {
@@ -255,9 +333,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void handleImportDataButton() {
-        Model.getInstance().reset();
+        Model.getInstance().clearAnalysis();
+        clearAllTextViews();
         Client client = new Client(Model.getInstance().getIp(), this, loadingDialog);
         client.execute("analyza");
+    }
+
+    private void clearAllTextViews() {
+        bookNameTextView.setText("");
+        bookEanTextView.setText("");
+        totalAmountTextView.setText("");
+        soldAmountTextView.setText("");
+        supplierTextView.setText("");
     }
 
 
@@ -285,13 +372,38 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 hasOrder = true;
                 Model.getInstance().saveOrderItem(orderAmountInput.getText().toString());
             }
+            updateAmountInfo();
         } else {
             Toast.makeText(this, "Nic není vybrané", Toast.LENGTH_SHORT).show();
 
         }
+
+
         returnAmountInput.setText("");
         orderAmountInput.setText("");
         editDialog.hide();
+    }
+
+
+    public void updateAmountInfo() {
+        String returns = "", orders = "";
+        if (Model.getInstance().getOrders().size() == 1) {
+            orders = String.format("Objednávka obsahuje %s položku a %d ks.", Model.getInstance().getOrders().size(), Model.getInstance().calculateTotalAmount(Model.getInstance().getOrders()));
+        } else if (Model.getInstance().getOrders().size() > 1 && Model.getInstance().getOrders().size() < 5) {
+            orders = String.format("Objednávka obsahuje %s položky a %d ks.", Model.getInstance().getOrders().size(), Model.getInstance().calculateTotalAmount(Model.getInstance().getOrders()));
+        } else if (Model.getInstance().getOrders().size() > 4) {
+            orders = String.format("Objednávka obsahuje %s položek a %d ks.", Model.getInstance().getOrders().size(), Model.getInstance().calculateTotalAmount(Model.getInstance().getOrders()));
+        }
+
+        if (Model.getInstance().getReturns().size() == 1) {
+            returns = String.format("Vratka obsahuje %s položku a %d ks.", Model.getInstance().getReturns().size(), Model.getInstance().calculateTotalAmount(Model.getInstance().getReturns()));
+        } else if (Model.getInstance().getReturns().size() > 1 && Model.getInstance().getReturns().size() < 5) {
+            returns = String.format("Vratka obsahuje %s položky a %d ks.", Model.getInstance().getReturns().size(), Model.getInstance().calculateTotalAmount(Model.getInstance().getReturns()));
+        } else if (Model.getInstance().getReturns().size() > 4) {
+            returns = String.format("Vratka obsahuje %s položek a %d ks.", Model.getInstance().getReturns().size(), Model.getInstance().calculateTotalAmount(Model.getInstance().getReturns()));
+        }
+
+        amountInfoTextView.setText(String.format("%s\n%s", returns, orders));
     }
 
 

@@ -14,19 +14,17 @@ import application.shared.ExportArticle;
 public class Model {
 
 
-    private HashMap<String, ArticleRow> analysis = new HashMap<>();
-    private HashMap<String, ArticleRow> data = new HashMap<>();
+    private HashMap<String, ArticleRow> analysis;
+    private ArrayList<ExportArticle> returns, orders;
     private Settings settings;
     private Context context;
     private ArticleRow selectedItem;
 
 
-    private ArrayList<ExportArticle> returns = new ArrayList<>();
-    private ArrayList<ExportArticle> orders = new ArrayList<>();
-
     public Model() {
-        analysis = new HashMap<>();
-        data = new HashMap<>();
+        this.analysis = new HashMap<>();
+        this.returns = new ArrayList<>();
+        this.orders = new ArrayList<>();
     }
 
 
@@ -52,14 +50,6 @@ public class Model {
     }
 
 
-    public void setData(HashMap<String, ArticleRow> data) {
-        this.data = data;
-    }
-
-    public HashMap<String, ArticleRow> getData() {
-        return this.data;
-    }
-
     public void setAnalysis(HashMap<String, ArticleRow> analysis) {
         this.analysis = analysis;
     }
@@ -81,24 +71,33 @@ public class Model {
         this.context = context;
     }
 
-    public void deleteData() {
-        orders.clear();
-        returns.clear();
-    }
+//    private TextView bookNameTextView, bookEanTextView, totalAmountTextView, soldAmountTextView, supplierAmountTextView;
 
 
-    public void updateDisplay(EditText eanInput, TextView bookNameTextView, TextView bookEanTextView, TextView totalAmountTextView, TextView soldAmountTextView, TextView supplierTextView, TextView dateOfLastSaleTextView, TextView dateofLastDeliveryTextView, TextView receivedAsTextView) {
+    public void updateDisplay(EditText eanInput, TextView bookNameTextView, TextView bookEanTextView, TextView totalAmountTextView, TextView soldAmountTextView, TextView supplierTextView) {
         String ean = eanInput.getText().toString();
         ArticleRow a = findEan(ean);
         if (a.getEan().equalsIgnoreCase("neznamy")) {
+            selectedItem = null;
             Toast.makeText(context, "Položka není v systému", Toast.LENGTH_SHORT).show();
+            bookNameTextView.setText("");
+            bookEanTextView.setText("");
+            totalAmountTextView.setText("");
+            soldAmountTextView.setText("");
+            supplierTextView.setText("");
+        } else if (a.getSoldAmount().isEmpty()) {
+            bookNameTextView.setText("Název: " + a.getName());
+            bookEanTextView.setText(String.format("EAN: %s", a.getEan()));
+            supplierTextView.setText("\n\n               Položka není v analýze.");
         } else {
             bookNameTextView.setText("Název: " + a.getName());
-            bookEanTextView.setText("EAN: " + a.getEan());
-            totalAmountTextView.setText(String.format("Stav skladu: %s   Příjem: %s", a.getTotalAmount(), a.getDateOfLastDelivery()));
+            bookEanTextView.setText(String.format("EAN: %s,   Cena: %s,- Kč", a.getEan(), a.getPrice()));
+            totalAmountTextView.setText(String.format("Stav skladu: %s   Příjem: %s ", a.getTotalAmount(), a.getDateOfLastDelivery()));
             soldAmountTextView.setText(String.format("Prodeje: %s   Poslední prodej: %s", a.getSoldAmount(), a.getDateOfLastSale()));
             supplierTextView.setText(String.format("Dodavatel: %s (%s)", a.getSupplier(), pickConsignmentOrSale(a)));
         }
+//        bookEanTextView.clearFocus();
+//        eanInput.requestFocus();
     }
 
     private String pickConsignmentOrSale(ArticleRow a) {
@@ -134,17 +133,26 @@ public class Model {
         }
     }
 
-    public void reset() {
-        if (data != null) {
-            
-            this.data.clear();
-        }
-
+    public void clearAnalysis() {
         if (analysis != null) {
             this.analysis.clear();
         }
-        selectedItem = new ArticleRow("neznamy", "neznamy", "neznamy", "neznamy", "neznamy", "neznamy", "neznamy", "neznamy", "neznamy");
+        selectedItem = null;
     }
+
+
+    public void clearOrders() {
+        if (orders != null) {
+            this.orders.clear();
+        }
+    }
+
+    public void clearReturns() {
+        if (returns != null) {
+            this.returns.clear();
+        }
+    }
+
 
     private void iterateListForMatch(String ean, String exportAmount, boolean isReturn) {
         searchListForItemByEan(ean, exportAmount, isReturn);
@@ -178,6 +186,15 @@ public class Model {
 
     }
 
+    public int calculateTotalAmount(ArrayList<ExportArticle> items) {
+        int amount = 0;
+        for (ExportArticle a : items) {
+            amount += Integer.parseInt(a.getExportAmount());
+        }
+        return amount;
+    }
+
+
     private void addNewItemIfNotFound(String ean, String exportAmount, boolean isReturn) {
         if (!containsEan) {
             if (isReturn) {
@@ -188,18 +205,29 @@ public class Model {
         }
     }
 
+    private ArticleRow item;
+
     private ArticleRow findEan(String ean) {
-        ArticleRow item;
         item = analysis.get(ean);
         if (item == null) {
-            item = data.get(ean);
+            lookForInDatabase(ean);
         }
-
         if (item == null) {
             item = new ArticleRow("neznamy", "neznamy", "neznamy", "neznamy", "neznamy", "neznamy", "neznamy", "neznamy", "neznamy");
         }
         selectedItem = item;
         return item;
+    }
+
+
+    private void lookForInDatabase(String ean) {
+        DatabaseAccess db = DatabaseAccess.getInstance(context);
+        db.open();
+        String name = db.getBook(ean);
+        if (!"notFound".equalsIgnoreCase(name)) {
+            item = new ArticleRow(ean, name, "", "", "", "", "", "", "");
+        }
+        db.close();
     }
 
 

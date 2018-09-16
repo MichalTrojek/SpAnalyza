@@ -9,4 +9,16 @@
 
     </item>
 
+    <item
+        android:id="@+id/importDataButton"
+        android:title="@string/importDataButton"
+        app:showAsAction="always">
+    </item>
+
+    <item
+        android:id="@+id/exportButton"
+        android:title="@string/exportButton"
+        app:showAsAction="always">
+    </item>
+
 </menu>
