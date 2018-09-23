@@ -4,7 +4,7 @@
 
     <uses-permission
         android:name="android.permission.INTERNET"
-        android:protectionLevel="signature"></uses-permission>
+        android:protectionLevel="signature" />
 
     <application
         android:allowBackup="true"
@@ -14,13 +14,19 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         <activity
-            android:name="application.MainActivity"
+            android:name="com.mtr.application.MainActivity"
             android:windowSoftInputMode="stateHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity android:name="com.mtr.application.FindByNameActivity">
+            <meta-data
+
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mtr.application.MainActivity" />
         </activity>
     </application>
 

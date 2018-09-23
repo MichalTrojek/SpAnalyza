@@ -6,8 +6,8 @@ android {
         applicationId "com.mtr.skladovypomocnikanalyza"
         minSdkVersion 24
         targetSdkVersion 27
-        versionCode 9
-        versionName "9.0"
+        versionCode 13
+        versionName "13.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -28,6 +28,18 @@ dependencies {
     implementation 'com.google.android.gms:play-services-ads:15.0.1'
     implementation 'com.readystatesoftware.sqliteasset:sqliteassethelper:+'
     implementation group: 'org.apache.poi', name: 'poi-ooxml', version: '3.9'
+    implementation 'com.github.mancj:MaterialSearchBar:0.7.6'
 
 
 }
+configurations.all {
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+        def requested = details.requested
+        if (requested.group == 'com.android.support') {
+            if (!requested.name.startsWith("multidex")) {
+                details.useVersion '25.3.0'
+            }
+        }
+    }
+}
+
