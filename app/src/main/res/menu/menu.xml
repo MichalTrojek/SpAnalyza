@@ -2,23 +2,37 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item
-        android:id="@+id/action_settings"
-        android:title="@string/settingsButton"
-        app:showAsAction="always">
 
-    </item>
 
     <item
         android:id="@+id/importDataButton"
         android:title="@string/importDataButton"
-        app:showAsAction="always">
-    </item>
+        app:showAsAction="always"></item>
 
     <item
         android:id="@+id/exportButton"
         android:title="@string/exportButton"
+        app:showAsAction="always"></item>
+
+
+    <item
+        android:id="@+id/action_settings"
+        android:title="@string/settingsButton"
+        android:icon="@drawable/ic_settings_white_24dp"
         app:showAsAction="always">
     </item>
 
+    <item
+        android:id="@+id/search"
+        android:title="@string/settingsButton"
+        android:icon="@drawable/ic_search_white_24dp"
+        app:showAsAction="always">
+    </item>
+
+    <!--<item-->
+        <!--android:id="@+id/action_search"-->
+        <!--android:icon="@drawable/ic_search_white_24dp"-->
+        <!--android:title="Search"-->
+        <!--app:actionViewClass="android.support.v7.widget.SearchView"-->
+        <!--app:showAsAction="always" />-->
 </menu>

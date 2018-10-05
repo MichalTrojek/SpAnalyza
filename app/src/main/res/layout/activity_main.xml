@@ -16,16 +16,15 @@
 
     <EditText
         android:id="@+id/eanInput"
-        android:layout_width="321dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="16dp"
         android:ems="10"
         android:hint="@string/input_ean"
         android:inputType="number"
         android:textIsSelectable="true"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.17"
+        app:layout_constraintEnd_toStartOf="@+id/scannerButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/appbar" />
 
@@ -38,7 +37,7 @@
         android:maxLength="30"
         android:maxLines="1"
         android:text="@string/book_name"
-        android:textSize="14sp"
+        android:textSize="13sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/eanInput" />
@@ -49,7 +48,7 @@
         android:layout_height="19dp"
         android:layout_marginTop="8dp"
         android:text="@string/book_ean"
-        android:textSize="14sp"
+        android:textSize="13sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="@+id/bookNameTextView"
         app:layout_constraintTop_toBottomOf="@+id/bookNameTextView" />
@@ -60,7 +59,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="@string/total_amount"
-        android:textSize="14sp"
+        android:textSize="13sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="@+id/bookEanTextView"
         app:layout_constraintTop_toBottomOf="@+id/bookEanTextView" />
@@ -71,7 +70,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="@string/sold_amount"
-        android:textSize="14sp"
+        android:textSize="13sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="@+id/totalAmountTextView"
         app:layout_constraintTop_toBottomOf="@+id/totalAmountTextView" />
@@ -158,7 +157,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        android:textSize="14sp"
+        android:textSize="13sp"
         app:layout_constraintBottom_toTopOf="@+id/deleteButton"
         app:layout_constraintEnd_toEndOf="@+id/editButton"
         app:layout_constraintStart_toStartOf="@+id/deleteButton" />
@@ -169,7 +168,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginTop="8dp"
-        android:textSize="14sp"
+        android:textSize="13sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@+id/locTextView"
         app:layout_constraintStart_toStartOf="@+id/supplierTextView"
@@ -180,7 +179,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:textSize="14sp"
+        android:textSize="13sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="@+id/rankTextView"
         app:layout_constraintTop_toBottomOf="@+id/rankTextView" />
@@ -193,11 +192,21 @@
         android:layout_marginStart="32dp"
         android:layout_marginTop="8dp"
         android:textAlignment="viewStart"
-        android:textSize="14sp"
+        android:textSize="13sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@+id/editButton"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/authorTextView" />
+
+    <Button
+        android:id="@+id/scannerButton"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:text="@string/scanner_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/appbar" />
 
 </android.support.constraint.ConstraintLayout>

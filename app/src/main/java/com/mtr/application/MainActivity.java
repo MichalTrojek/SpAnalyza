@@ -1,13 +1,19 @@
 package com.mtr.application;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -24,7 +30,10 @@ import android.widget.Toast;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 
+import java.util.ArrayList;
 import java.util.regex.Pattern;
 
 import application.R;
@@ -32,12 +41,21 @@ import application.R;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private EditText eanInput;
-    private Button editButton, deleteButton, findByNameButton;
+    private Button editButton, deleteButton, scannerButton;
     private AlertDialog editDialog;
     private TextView bookNameTextView, bookEanTextView, totalAmountTextView, soldAmountTextView, supplierTextView, ipAddressTextView, amountInfoTextView, locationTextView, rankTextView, authorTextView, loadingInfoTextView;
     private EditText inputIpAddress;
-    private AlertDialog ipDialog, loadingDialog, deleteDialog, loadDatabaseDialog;
-    private ProgressBar progress;
+    private AlertDialog ipDialog, deleteDialog, loadingDialog;
+    private final Activity scannerActivity = this;
+    private static final int PERMISSION_REQUEST_CODE = 200;
+    private ProgressBar progressBar;
+
+    private ArrayList<String> dataSet = new ArrayList<>();
+
+
+    private RecyclerView recyclerView;
+    private RecyclerView.Adapter adapter;
+    private RecyclerView.LayoutManager layoutManager;
 
 
     @Override
@@ -48,8 +66,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         Model.getInstance().setContext(this);
 
-//        createLoadingDatabaseDialog();
-//        loadDatabaseData();
+
 
         createLoadingDialog();
         createIpAddressAlertDialog();
@@ -62,20 +79,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         createEditDialog();
         hideKeyboard(eanInput);
 
-    }
-
-    private void loadDatabaseData() {
-        if (Model.getInstance().getMapOfNames() == null) {
-            DatabaseLoaderAsyncTask databaseLoader = new DatabaseLoaderAsyncTask(this, loadDatabaseDialog, progress, loadingInfoTextView);
-            databaseLoader.execute();
+        if (getIntent().getStringExtra("ean") != null) {
+            String ean = getIntent().getStringExtra("ean");
+            Model.getInstance().scannerUpdate(ean, eanInput, bookNameTextView, bookEanTextView, totalAmountTextView, soldAmountTextView, supplierTextView, locationTextView, rankTextView, authorTextView);
         }
-    }
 
-    private void createLoadingDatabaseDialog() {
-        View view = getLayoutInflater().inflate(R.layout.start_loading, null);
-        progress = view.findViewById(R.id.progressBar);
-        loadingInfoTextView = (TextView) view.findViewById(R.id.loadingInfoTextView);
-        loadDatabaseDialog = new AlertDialog.Builder(this).setView(view).create();
+
     }
 
 
@@ -101,7 +110,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         deleteDialog = new AlertDialog.Builder(this).setView(view).create();
     }
 
-
     private void createLoadingDialog() {
         View view = getLayoutInflater().inflate(R.layout.loading_analysis_dialog, null);
         ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
@@ -109,6 +117,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         progressBar.setVisibility(View.VISIBLE);
         loadingDialog = new AlertDialog.Builder(this).setView(view).create();
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -129,11 +138,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.exportButton:
                 handleExportButton();
                 return true;
+            case R.id.search:
+                handleSearch();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
 
         }
     }
+
+    private void handleSearch() {
+        Intent intent = new Intent(this, FindByNameActivity.class);
+        startActivity(intent);
+    }
+
 
     private void handleSettingsButton() {
         ipDialog.show();
@@ -150,8 +168,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         deleteButton.setOnClickListener(this);
         editButton = (Button) findViewById(R.id.editButton);
         editButton.setOnClickListener(this);
-//        findByNameButton = (Button) findViewById(R.id.findByNameButton);
-//        findByNameButton.setOnClickListener(this);
+        scannerButton = (Button) findViewById(R.id.scannerButton);
+        scannerButton.setOnClickListener(this);
+
     }
 
     private void setTextViews() {
@@ -263,13 +282,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.backDeleteButton:
                 handleBackDeleteButton();
                 break;
-//            case R.id.findByNameButton:
-//                handleFindByNameButton();
+            case R.id.scannerButton:
+                handleScannerButton();
+                break;
             default:
                 break;
         }
 
     }
+
 
     public void handleBackDeleteButton() {
         deleteDialog.hide();
@@ -419,6 +440,59 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void handleFindByNameButton() {
         Intent intent = new Intent(this, FindByNameActivity.class);
         startActivity(intent);
+    }
+
+    private void handleScannerButton() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.CAMERA},
+                    PERMISSION_REQUEST_CODE);
+        } else {
+            invokeScanner();
+        }
+
+    }
+
+    private void invokeScanner() {
+        IntentIntegrator integrator = new IntentIntegrator(scannerActivity);
+        integrator.setDesiredBarcodeFormats(IntentIntegrator.ONE_D_CODE_TYPES);
+        integrator.setPrompt("Scan");
+        integrator.setCameraId(0);
+        integrator.setBeepEnabled(true);
+        integrator.initiateScan();
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                invokeScanner();
+            } else {
+                Toast.makeText(this, "Nebyla daná opravnění pro kameru", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+        if (result != null) {
+            if (result.getContents() == null) {
+                Toast.makeText(this, "Skenování  bylo zrušeno", Toast.LENGTH_SHORT).show();
+            } else {
+//                Toast.makeText(this, result.getContents(), Toast.LENGTH_LONG).show();
+                String ean = result.getContents();
+                Model.getInstance().scannerUpdate(ean, eanInput, bookNameTextView, bookEanTextView, totalAmountTextView, soldAmountTextView, supplierTextView, locationTextView, rankTextView, authorTextView);
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+
+
     }
 
 

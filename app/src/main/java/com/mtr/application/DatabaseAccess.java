@@ -5,6 +5,9 @@ import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.database.sqlite.SQLiteQueryBuilder;
+
+import java.util.ArrayList;
 
 public class DatabaseAccess {
     private SQLiteOpenHelper openHelper;
@@ -79,5 +82,23 @@ public class DatabaseAccess {
         return "notFound";
     }
 
+
+    public ArrayList<Item> fullTextSearch(String string) {
+        ArrayList<Item> list = new ArrayList<>();
+        SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
+        String[] selectionArgs = {string};
+        Cursor cursor = db.rawQuery(String.format("Select ean, name FROM fts_books_names WHERE fts_books_names MATCH ' \"^%s\" ' ORDER BY name ASC", selectionArgs), null);
+        System.out.println("TEST " + cursor.getCount());
+        if (cursor.moveToNext()) {
+            do {
+                Item item = new Item();
+                item.setEan(cursor.getString(cursor.getColumnIndex("ean")));
+                item.setName(cursor.getString(cursor.getColumnIndex("name")));
+//                list.add(cursor.getString(cursor.getColumnIndex("name")));
+                list.add(item);
+            } while (cursor.moveToNext());
+        }
+        return list;
+    }
 
 }

@@ -1,6 +1,7 @@
 package com.mtr.application;
 
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -10,6 +11,8 @@ import com.mtr.application.shared.ExportArticle;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import application.R;
 
 public class Model {
 
@@ -99,6 +102,14 @@ public class Model {
     public void updateDisplay(EditText eanInput, TextView bookNameTextView, TextView bookEanTextView, TextView totalAmountTextView, TextView soldAmountTextView, TextView supplierTextView, TextView locationTextView, TextView rankTextView, TextView authorTextView) {
         String ean = eanInput.getText().toString();
         ArticleRow a = findEan(ean);
+        bookNameTextView.setText("");
+        bookEanTextView.setText("");
+        totalAmountTextView.setText("");
+        soldAmountTextView.setText("");
+        supplierTextView.setText("");
+        locationTextView.setText("");
+        rankTextView.setText("");
+        authorTextView.setText("");
         if (a.getEan().equalsIgnoreCase("neznamy")) {// item does not exist
             selectedItem = null;
             Toast.makeText(context, "Položka není v systému", Toast.LENGTH_SHORT).show();
@@ -113,16 +124,16 @@ public class Model {
         } else if (a.getSales().isEmpty()) {// all items in analysis have some record of sale. This block handles situation when item is not in analysis.
             bookNameTextView.setText("Název: " + a.getName());
             bookEanTextView.setText(String.format("EAN: %s", a.getEan()));
+            supplierTextView.setTextColor(ContextCompat.getColor(context, R.color.mycolor));
             supplierTextView.setText("\n\n               Položka není v analýze.");
             locationTextView.setText("");
             rankTextView.setText("");
             authorTextView.setText("");
         } else {
-
             bookNameTextView.setText(String.format("Název: %s", a.getName()));
             bookEanTextView.setText(String.format("EAN: %s  %s (%s)", a.getEan(), a.getSupplier(), pickConsignmentOrSale(a)));
-            totalAmountTextView.setText(String.format("Stav skladu: %s   Příjem: %s ", a.getStoredAmount(), a.getDateOfLastDelivery()));
-            soldAmountTextView.setText(String.format("Prodeje: %s   Poslední prodej: %s", a.getSales(), a.getDateOfLastSale()));
+            totalAmountTextView.setText(String.format("Stav skladu: %s (%s)  Příjem: %s ", a.getStoredAmount(), cleanSupplyString(a.getSupply()), a.getDateOfLastDelivery()));
+            soldAmountTextView.setText(String.format("Prodeje: %s/%s  Poslední prodej: %s", a.getSales(), a.getSales2(), a.getDateOfLastSale()));
             supplierTextView.setText(String.format("Cena: %s,- Kč   Obrat: %s,- Kč", a.getPrice(), a.getRevenue()));
             locationTextView.setText(String.format("LOC: %s", a.getLocations()));
             rankTextView.setText(String.format("Pořadí prodeje: %s   Pořadí eshop: %s", a.getRank(), a.getEshopRank()));
@@ -130,6 +141,60 @@ public class Model {
         }
 
     }
+
+    public void scannerUpdate(String ean, EditText eanInput, TextView bookNameTextView, TextView bookEanTextView, TextView totalAmountTextView, TextView soldAmountTextView, TextView supplierTextView, TextView locationTextView, TextView rankTextView, TextView authorTextView) {
+        ArticleRow a = findEan(ean);
+        bookNameTextView.setText("");
+        bookEanTextView.setText("");
+        totalAmountTextView.setText("");
+        soldAmountTextView.setText("");
+        supplierTextView.setText("");
+        locationTextView.setText("");
+        rankTextView.setText("");
+        authorTextView.setText("");
+        if (a.getEan().equalsIgnoreCase("neznamy")) {// item does not exist
+            selectedItem = null;
+            Toast.makeText(context, "Položka není v systému", Toast.LENGTH_SHORT).show();
+            bookNameTextView.setText("");
+            bookEanTextView.setText("");
+            totalAmountTextView.setText("");
+            soldAmountTextView.setText("");
+            supplierTextView.setText("");
+            locationTextView.setText("");
+            rankTextView.setText("");
+            authorTextView.setText("");
+        } else if (a.getSales().isEmpty()) {// all items in analysis have some record of sale. This block handles situation when item is not in analysis.
+            bookNameTextView.setText("Název: " + a.getName());
+            bookEanTextView.setText(String.format("EAN: %s", a.getEan()));
+            supplierTextView.setTextColor(ContextCompat.getColor(context, R.color.mycolor));
+            supplierTextView.setText("\n\n               Položka není v analýze.");
+            locationTextView.setText("");
+            rankTextView.setText("");
+            authorTextView.setText("");
+        } else {
+            bookNameTextView.setText(String.format("Název: %s", a.getName()));
+            bookEanTextView.setText(String.format("EAN: %s  %s (%s)", a.getEan(), a.getSupplier(), pickConsignmentOrSale(a)));
+            totalAmountTextView.setText(String.format("Stav skladu: %s (%s)  Příjem: %s ", a.getStoredAmount(), cleanSupplyString(a.getSupply()), a.getDateOfLastDelivery()));
+            soldAmountTextView.setText(String.format("Prodeje: %s/%s  Poslední prodej: %s", a.getSales(), a.getSales2(), a.getDateOfLastSale()));
+            supplierTextView.setText(String.format("Cena: %s,- Kč   Obrat: %s,- Kč", a.getPrice(), a.getRevenue()));
+            locationTextView.setText(String.format("LOC: %s", a.getLocations()));
+            rankTextView.setText(String.format("Pořadí prodeje: %s   Pořadí eshop: %s", a.getRank(), a.getEshopRank()));
+            authorTextView.setText(String.format("Autor: %s (%s)", a.getAuthor(), a.getRealeaseDate()));
+        }
+
+    }
+
+
+    private String cleanSupplyString(String s) {
+        if (s == null || s.isEmpty()) {
+            s = "0";
+        }
+        if (s.contains(",")) {
+            s = s.substring(0, s.indexOf(","));
+        }
+        return s;
+    }
+
 
     private String pickConsignmentOrSale(ArticleRow a) {
         String consignmentOrSale = "";
@@ -349,6 +414,10 @@ public class Model {
 //            item = new ArticleRow(ean, name, "", "", "", "", "", "", "");
         }
         db.close();
+    }
+
+
+    public void addBook() {
     }
 
 
