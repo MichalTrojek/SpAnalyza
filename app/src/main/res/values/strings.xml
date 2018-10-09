@@ -16,7 +16,7 @@
     <string name="backButton">Zpět</string>
     <string name="saveButton">Uložit</string>
     <string name="developedBy">(c) 2018, Michal Trojek</string>
-    <string name="version">Verze: 15</string>
+    <string name="version">Verze: 16</string>
     <string name="importDataButton">Nahrát</string>
     <string name="editIpAddressButton">Změnit IP Adresu</string>
     <string name="inputIpAddressHint">Vlož IP Adresu</string>
@@ -39,5 +39,9 @@
     <string name="start_loading">Načítání dat z databaze</string>
     <string name="start_loading_text">Načítám data...</string>
     <string name="scanner_button">Snímat</string>
+
+    <string name="offlineButton">Nahrát z interní paměti</string>
+    <string name="onlineButton">Nahrát přes wifi</string>
+
 
 </resources>

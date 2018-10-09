@@ -94,7 +94,6 @@ public class DatabaseAccess {
                 Item item = new Item();
                 item.setEan(cursor.getString(cursor.getColumnIndex("ean")));
                 item.setName(cursor.getString(cursor.getColumnIndex("name")));
-//                list.add(cursor.getString(cursor.getColumnIndex("name")));
                 list.add(item);
             } while (cursor.moveToNext());
         }

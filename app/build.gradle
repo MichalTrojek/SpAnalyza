@@ -6,8 +6,8 @@ android {
         applicationId "com.mtr.skladovypomocnikanalyza"
         minSdkVersion 24
         targetSdkVersion 27
-        versionCode 15
-        versionName "15.0"
+        versionCode 16
+        versionName "16.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
@@ -34,6 +34,10 @@ dependencies {
     implementation 'com.github.mancj:MaterialSearchBar:0.7.6'
     implementation 'com.journeyapps:zxing-android-embedded:3.0.2@aar'
     implementation 'com.google.zxing:core:3.2.0'
+
+
+
+    implementation 'com.google.code.gson:gson:2.8.5'
 
 
 }

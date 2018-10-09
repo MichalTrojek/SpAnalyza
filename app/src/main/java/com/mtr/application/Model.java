@@ -16,14 +16,12 @@ import application.R;
 
 public class Model {
 
-
     private HashMap<String, ArticleRow> analysis;
     private ArrayList<ExportArticle> returns, orders;
     private Settings settings;
     private Context context;
     private ArticleRow selectedItem;
     private String name;
-    private HashMap<String, String> mapOfNames;
 
 
     public Model() {
@@ -41,13 +39,6 @@ public class Model {
         return LazyHolder.INSTANCE;
     }
 
-    public void setMapOfNames(HashMap<String, String> mapOfNames) {
-        this.mapOfNames = mapOfNames;
-    }
-
-    public HashMap<String, String> getMapOfNames() {
-        return this.mapOfNames;
-    }
 
     ArrayList<String> suggestions = new ArrayList<>();
 
@@ -98,6 +89,25 @@ public class Model {
         this.context = context;
     }
 
+    public void loadAnalysis() {
+        analysis = settings.getAnalysis();
+    }
+
+    public void saveAnalysis() {
+        settings.setAnalysis(analysis);
+    }
+
+    public void loadOrdersAndReturns() {
+        orders = settings.getOrders();
+        returns = settings.getReturns();
+        System.out.println(orders.size() + " returns " + returns.size());
+    }
+
+    public void saveOrdersAndReturns() {
+        settings.setOrders(orders);
+        settings.setReturns(returns);
+    }
+
 
     public void updateDisplay(EditText eanInput, TextView bookNameTextView, TextView bookEanTextView, TextView totalAmountTextView, TextView soldAmountTextView, TextView supplierTextView, TextView locationTextView, TextView rankTextView, TextView authorTextView) {
         String ean = eanInput.getText().toString();
@@ -110,6 +120,7 @@ public class Model {
         locationTextView.setText("");
         rankTextView.setText("");
         authorTextView.setText("");
+        supplierTextView.setTextColor(ContextCompat.getColor(context, R.color.black));
         if (a.getEan().equalsIgnoreCase("neznamy")) {// item does not exist
             selectedItem = null;
             Toast.makeText(context, "Položka není v systému", Toast.LENGTH_SHORT).show();
@@ -124,7 +135,7 @@ public class Model {
         } else if (a.getSales().isEmpty()) {// all items in analysis have some record of sale. This block handles situation when item is not in analysis.
             bookNameTextView.setText("Název: " + a.getName());
             bookEanTextView.setText(String.format("EAN: %s", a.getEan()));
-            supplierTextView.setTextColor(ContextCompat.getColor(context, R.color.mycolor));
+            supplierTextView.setTextColor(ContextCompat.getColor(context, R.color.red));
             supplierTextView.setText("\n\n               Položka není v analýze.");
             locationTextView.setText("");
             rankTextView.setText("");
@@ -152,6 +163,7 @@ public class Model {
         locationTextView.setText("");
         rankTextView.setText("");
         authorTextView.setText("");
+        supplierTextView.setTextColor(ContextCompat.getColor(context, R.color.black));
         if (a.getEan().equalsIgnoreCase("neznamy")) {// item does not exist
             selectedItem = null;
             Toast.makeText(context, "Položka není v systému", Toast.LENGTH_SHORT).show();
@@ -166,7 +178,7 @@ public class Model {
         } else if (a.getSales().isEmpty()) {// all items in analysis have some record of sale. This block handles situation when item is not in analysis.
             bookNameTextView.setText("Název: " + a.getName());
             bookEanTextView.setText(String.format("EAN: %s", a.getEan()));
-            supplierTextView.setTextColor(ContextCompat.getColor(context, R.color.mycolor));
+            supplierTextView.setTextColor(ContextCompat.getColor(context, R.color.red));
             supplierTextView.setText("\n\n               Položka není v analýze.");
             locationTextView.setText("");
             rankTextView.setText("");
@@ -198,9 +210,11 @@ public class Model {
 
     private String pickConsignmentOrSale(ArticleRow a) {
         String consignmentOrSale = "";
-        if (a.getDeliveredAs().equalsIgnoreCase("1512")) {
+
+
+        if (a.getDeliveredAs().equalsIgnoreCase("1512") || a.getDeliveredAs().equalsIgnoreCase("komise")) {
             consignmentOrSale = "Pevno";
-        } else if (a.getDeliveredAs().equalsIgnoreCase("1514")) {
+        } else if (a.getDeliveredAs().equalsIgnoreCase("1514") || a.getDeliveredAs().equalsIgnoreCase("komise")) {
             consignmentOrSale = "Komise";
         }
         return consignmentOrSale;

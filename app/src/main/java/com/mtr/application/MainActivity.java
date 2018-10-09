@@ -8,7 +8,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -21,8 +23,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,6 +38,11 @@ import com.google.android.gms.ads.MobileAds;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
@@ -45,17 +55,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private AlertDialog editDialog;
     private TextView bookNameTextView, bookEanTextView, totalAmountTextView, soldAmountTextView, supplierTextView, ipAddressTextView, amountInfoTextView, locationTextView, rankTextView, authorTextView, loadingInfoTextView;
     private EditText inputIpAddress;
-    private AlertDialog ipDialog, deleteDialog, loadingDialog;
+    private AlertDialog ipDialog, deleteDialog, loadingDialog, importDialog, filechooserdialog;
     private final Activity scannerActivity = this;
     private static final int PERMISSION_REQUEST_CODE = 200;
     private ProgressBar progressBar;
-
+    private ListView fileChooserListView;
     private ArrayList<String> dataSet = new ArrayList<>();
 
 
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
     private RecyclerView.LayoutManager layoutManager;
+
+
+    private String[] filePathStrings;
+    private String[] FileNameStrings;
+    private File[] listFile;
+    File file;
+
+    ArrayList<String> pathHistory;
+    String lastDirectory;
+    int count = 0;
 
 
     @Override
@@ -66,8 +86,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         Model.getInstance().setContext(this);
 
-
-
+        createFileChooserDialog();
+        createImportAlertDialog();
         createLoadingDialog();
         createIpAddressAlertDialog();
         createDeleteDialog();
@@ -83,8 +103,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             String ean = getIntent().getStringExtra("ean");
             Model.getInstance().scannerUpdate(ean, eanInput, bookNameTextView, bookEanTextView, totalAmountTextView, soldAmountTextView, supplierTextView, locationTextView, rankTextView, authorTextView);
         }
+        checkForStoragePermission();
+
+    }
 
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        handleLoadingAnalysis();
+        handleLoadingOrdersAndReturns();
+    }
+
+    private void handleLoadingAnalysis() {
+        Model.getInstance().loadAnalysis();
+    }
+
+    private void handleLoadingOrdersAndReturns() {
+        Model.getInstance().loadOrdersAndReturns();
+        if (!Model.getInstance().getOrders().isEmpty() || !Model.getInstance().getReturns().isEmpty()) {
+            updateAmountInfo();
+        }
+    }
+
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Model.getInstance().saveAnalysis();
+        Model.getInstance().saveOrdersAndReturns();
     }
 
 
@@ -99,6 +146,54 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ipAddressTextView.setText("IP Adresa : " + Model.getInstance().getIp());
         ipDialog = new AlertDialog.Builder(this).setView(view).create();
     }
+
+    private void createImportAlertDialog() {
+        View view = getLayoutInflater().inflate(R.layout.import_dialog, null);
+        view.findViewById(R.id.offlineButton).setOnClickListener(this);
+        view.findViewById(R.id.onlineButton).setOnClickListener(this);
+        importDialog = new AlertDialog.Builder(this).setView(view).create();
+    }
+
+    private void createFileChooserDialog() {
+        View view = getLayoutInflater().inflate(R.layout.filechooser_dialog, null);
+        view.findViewById(R.id.filechooserBackButton).setOnClickListener(this);
+        fileChooserListView = view.findViewById(R.id.filechooserListView);
+        fileChooserListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                lastDirectory = pathHistory.get(count);
+                if (lastDirectory.equals(adapterView.getItemAtPosition(i))) {
+                    System.out.println("TEST1");
+                    readExcelData(lastDirectory);
+                } else {
+                    System.out.println("TEST2");
+                    count++;
+                    pathHistory.add(count, (String) adapterView.getItemAtPosition(i));
+                    System.out.println(adapterView.getItemAtPosition(i));
+                    checkInternalStorage();
+
+                }
+            }
+        });
+        filechooserdialog = new AlertDialog.Builder(this).setView(view).create();
+    }
+
+    private void readExcelData(String filePath) {
+        File input = new File(filePath);
+
+        try (BufferedReader bw = new BufferedReader(new FileReader(input))) {
+            String line = "";
+            while ((line = bw.readLine()) != null) {
+                System.out.println(line);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        filechooserdialog.hide();
+    }
+
 
     private void createDeleteDialog() {
         View view = getLayoutInflater().inflate(R.layout.delete_dialog, null);
@@ -285,6 +380,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.scannerButton:
                 handleScannerButton();
                 break;
+            case R.id.offlineButton:
+                handleOfflineButton();
+                break;
+            case R.id.onlineButton:
+                handleOnlineButton();
+                break;
+            case R.id.filechooserBackButton:
+                handleFilechooserBackButton();
+                break;
             default:
                 break;
         }
@@ -385,11 +489,86 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void handleImportDataButton() {
+        importDialog.show();
+    }
+
+    private void handleOnlineButton() {
         Model.getInstance().clearAnalysis();
         clearAllTextViews();
         Client client = new Client(Model.getInstance().getIp(), this, loadingDialog);
         client.execute("analyza");
+        importDialog.hide();
     }
+
+    private void handleOfflineButton() {
+        showFileChooser();
+        importDialog.hide();
+    }
+
+
+    private void showFileChooser() {
+        count = 0;
+        pathHistory = new ArrayList<String>();
+        pathHistory.add(count, System.getenv("EXTERNAL_STORAGE"));
+
+        checkInternalStorage();
+        filechooserdialog.show();
+    }
+
+    private void checkForStoragePermission() {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
+            int permissionCheck = this.checkSelfPermission("Manifest.permission.READ_EXTERNAL_STORAGE");
+            permissionCheck += this.checkSelfPermission("Manifest.permission.WRITE_EXTERNAL_STORAGE");
+            if (permissionCheck != 0) {
+                this.requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, 1001); //Any number
+            }
+        } else {
+            System.out.println("No need for permission");
+        }
+    }
+
+    private void checkInternalStorage() {
+        try {
+            if (!Environment.getExternalStorageState().equals(
+                    Environment.MEDIA_MOUNTED)) {
+            } else {
+
+                file = new File(pathHistory.get(count));
+            }
+            listFile = file.listFiles();
+            filePathStrings = new String[listFile.length];
+            FileNameStrings = new String[listFile.length];
+
+            for (int i = 0; i < listFile.length; i++) {
+                filePathStrings[i] = listFile[i].getAbsolutePath();
+                FileNameStrings[i] = listFile[i].getName();
+            }
+            ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, filePathStrings);
+            fileChooserListView.setAdapter(adapter);
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void handleFilechooserBackButton() {
+        filechooserdialog.hide();
+    }
+//    private static final int FILE_SELECT_CODE = 0;
+//    private void showFileChooser() {
+//        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+//        intent.setType("*/*");
+//        intent.addCategory(Intent.CATEGORY_OPENABLE);
+//
+//        try {
+//            startActivityForResult(
+//                    Intent.createChooser(intent, "Select a File to Upload"),
+//                    FILE_SELECT_CODE);
+//        } catch (android.content.ActivityNotFoundException ex) {
+//            // Potentially direct the user to the Market with a Dialog
+//            Toast.makeText(this, "Please install a File Manager.",
+//                    Toast.LENGTH_SHORT).show();
+//        }
+//    }
 
     private void clearAllTextViews() {
         bookNameTextView.setText("");
@@ -397,6 +576,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         totalAmountTextView.setText("");
         soldAmountTextView.setText("");
         supplierTextView.setText("");
+        authorTextView.setText("");
+        locationTextView.setText("");
+        rankTextView.setText("");
     }
 
 
@@ -436,11 +618,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         editDialog.hide();
     }
 
-
-    private void handleFindByNameButton() {
-        Intent intent = new Intent(this, FindByNameActivity.class);
-        startActivity(intent);
-    }
 
     private void handleScannerButton() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
@@ -484,7 +661,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (result.getContents() == null) {
                 Toast.makeText(this, "Skenování  bylo zrušeno", Toast.LENGTH_SHORT).show();
             } else {
-//                Toast.makeText(this, result.getContents(), Toast.LENGTH_LONG).show();
                 String ean = result.getContents();
                 Model.getInstance().scannerUpdate(ean, eanInput, bookNameTextView, bookEanTextView, totalAmountTextView, soldAmountTextView, supplierTextView, locationTextView, rankTextView, authorTextView);
             }
