@@ -51,6 +51,15 @@ public class Model {
         this.settings = new Settings(c);
     }
 
+    public void setDatabaseId(int id) {
+        this.settings.setDatabaseId(id);
+    }
+
+    public int getDatabaseId() {
+        return this.settings.getDatabaseId();
+    }
+
+
     public String getIp() {
         return this.settings.getIp();
     }
@@ -138,7 +147,7 @@ public class Model {
             supplierTextView.setTextColor(ContextCompat.getColor(context, R.color.red));
             supplierTextView.setText("\n\n               Položka není v analýze.");
             locationTextView.setText("");
-            rankTextView.setText("");
+            rankTextView.setText(String.format("Cena: %s ,- Kč", a.getPrice()));
             authorTextView.setText("");
         } else {
             bookNameTextView.setText(String.format("Název: %s", a.getName()));
@@ -181,7 +190,7 @@ public class Model {
             supplierTextView.setTextColor(ContextCompat.getColor(context, R.color.red));
             supplierTextView.setText("\n\n               Položka není v analýze.");
             locationTextView.setText("");
-            rankTextView.setText("");
+            rankTextView.setText(String.format("Cena: %s ,- Kč", a.getPrice()));
             authorTextView.setText("");
         } else {
             bookNameTextView.setText(String.format("Název: %s", a.getName()));
@@ -409,7 +418,6 @@ public class Model {
             ArticleRow article = new ArticleRow();
             article.setEan("neznamy");
             item = article;
-//            item = new ArticleRow("neznamy", "neznamy", "neznamy", "neznamy", "neznamy", "neznamy", "neznamy", "neznamy", "neznamy");
         }
         selectedItem = item;
         return item;
@@ -419,13 +427,14 @@ public class Model {
     private void lookForInDatabase(String ean) {
         DatabaseAccess db = DatabaseAccess.getInstance(context);
         db.open();
-        String name = db.getBook(ean);
-        if (!"notFound".equalsIgnoreCase(name)) {
+        Item selectedItem = db.getBook(ean);
+
+        if (!"notFound".equalsIgnoreCase(selectedItem.getName())) {
             ArticleRow article = new ArticleRow();
-            article.setName(name);
-            article.setEan(ean);
+            article.setName(selectedItem.getName());
+            article.setEan(selectedItem.getEan());
+            article.setPrice(selectedItem.getPrice());
             item = article;
-//            item = new ArticleRow(ean, name, "", "", "", "", "", "", "");
         }
         db.close();
     }

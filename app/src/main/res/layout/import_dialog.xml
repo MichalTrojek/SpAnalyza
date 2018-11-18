@@ -20,11 +20,9 @@
     <Button
         android:id="@+id/offlineButton"
         android:layout_width="wrap_content"
-        android:layout_height="46dp"
-        android:layout_marginBottom="16dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="@string/offlineButton"
-        app:layout_constraintBottom_toTopOf="@+id/guideline3"
         app:layout_constraintEnd_toEndOf="@+id/onlineButton"
         app:layout_constraintStart_toStartOf="@+id/onlineButton"
         app:layout_constraintTop_toBottomOf="@+id/onlineButton" />
@@ -34,6 +32,18 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_begin="143dp" />
+        app:layout_constraintGuide_begin="195dp" />
+
+    <Button
+        android:id="@+id/importBackButton"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="205dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/backButton"
+        app:layout_constraintBottom_toTopOf="@+id/guideline3"
+        app:layout_constraintStart_toStartOf="@+id/offlineButton"
+        app:layout_constraintTop_toBottomOf="@+id/offlineButton" />
 
 </android.support.constraint.ConstraintLayout>

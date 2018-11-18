@@ -11,11 +11,9 @@
     <uses-feature android:name="android.hardware.camera" />
 
     <uses-permission android:name="android.permission.FLASHLIGHT" />
-
     <uses-permission android:name="android.permission.STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-
 
     <application
         android:allowBackup="true"
@@ -35,16 +33,15 @@
         </activity>
         <activity android:name="com.mtr.application.FindByNameActivity">
             <meta-data
-
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.mtr.application.MainActivity" />
         </activity>
-
         <activity
             android:name="com.journeyapps.barcodescanner.CaptureActivity"
             android:screenOrientation="portrait"
             android:stateNotNeeded="true"
             tools:replace="android:screenOrientation" />
+        <activity android:name="com.mtr.application.ChangesInfoActivity"></activity>
     </application>
 
 </manifest>

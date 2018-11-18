@@ -40,19 +40,40 @@ public class DatabaseAccess {
     }
 
 
-    public String getBook(String ean) {
+//    public String getBook(String ean) {
+//        if (!ean.isEmpty()) {
+//            Cursor cursor = db.rawQuery("Select NAME from articles where EAN =" + ean, new String[]{});
+//            StringBuffer buffer = new StringBuffer();
+//            if (cursor.moveToFirst()) {
+//                String name = cursor.getString(0);
+//                buffer.append("" + name);
+//                cursor.close();
+//                return buffer.toString();
+//            }
+//            cursor.close();
+//        }
+//        return "notFound";
+//    }
+
+    public Item getBook(String ean) {
+        Item item = new Item();
         if (!ean.isEmpty()) {
-            Cursor cursor = db.rawQuery("Select NAME from articles where EAN =" + ean, new String[]{});
-            StringBuffer buffer = new StringBuffer();
+            Cursor cursor = db.rawQuery("Select NAME, PRICE from articles where EAN =" + ean, new String[]{});
             if (cursor.moveToFirst()) {
                 String name = cursor.getString(0);
-                buffer.append("" + name);
+                String price = cursor.getString(1);
                 cursor.close();
-                return buffer.toString();
+                item.setEan(ean);
+                item.setName(name);
+                item.setPrice(price);
+                return item;
             }
             cursor.close();
         }
-        return "notFound";
+        item.setName("notFound");
+        item.setPrice("");
+        item.setEan(ean);
+        return item;
     }
 
     public SQLiteDatabase getDb() {
@@ -80,6 +101,21 @@ public class DatabaseAccess {
             cursor.close();
         }
         return "notFound";
+    }
+
+    public String getPrice(String ean) {
+        if (!ean.isEmpty()) {
+            Cursor cursor = db.rawQuery("Select PRICE from articles where EAN = " + ean, new String[]{});
+            StringBuffer buffer = new StringBuffer();
+            if (cursor.moveToFirst()) {
+                String price = cursor.getString(0);
+                buffer.append("" + ean);
+                cursor.close();
+                return buffer.toString();
+            }
+            cursor.close();
+        }
+        return "0 ,- Kč";
     }
 
 

@@ -7,7 +7,7 @@
     android:layout_height="match_parent">
 
     <Button
-        android:id="@+id/deleteReturnsButton"
+        android:id="@+id/printReturnsButton"
         style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="202dp"
         android:layout_height="wrap_content"
@@ -28,8 +28,8 @@
         android:layout_marginTop="8dp"
         android:backgroundTint="#FF0000"
         android:text="@string/deleteOrders"
-        app:layout_constraintStart_toStartOf="@+id/deleteReturnsButton"
-        app:layout_constraintTop_toBottomOf="@+id/deleteReturnsButton" />
+        app:layout_constraintStart_toStartOf="@+id/printReturnsButton"
+        app:layout_constraintTop_toBottomOf="@+id/printReturnsButton" />
 
     <Button
         android:id="@+id/backDeleteButton"
@@ -40,13 +40,13 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
         android:text="@string/deleteDialogBackButton"
-        app:layout_constraintEnd_toEndOf="@+id/deleteAllButton"
+        app:layout_constraintEnd_toEndOf="@+id/printOrdersButton"
         app:layout_constraintHorizontal_bias="0.473"
-        app:layout_constraintStart_toStartOf="@+id/deleteAllButton"
-        app:layout_constraintTop_toBottomOf="@+id/deleteAllButton" />
+        app:layout_constraintStart_toStartOf="@+id/printOrdersButton"
+        app:layout_constraintTop_toBottomOf="@+id/printOrdersButton" />
 
     <Button
-        android:id="@+id/deleteAllButton"
+        android:id="@+id/printOrdersButton"
         style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="205dp"
         android:layout_height="wrap_content"

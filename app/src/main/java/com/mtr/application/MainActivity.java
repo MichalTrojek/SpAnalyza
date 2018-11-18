@@ -23,7 +23,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -37,12 +36,11 @@ import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+import com.mtr.application.AsyncTasks.Client;
+import com.mtr.application.AsyncTasks.LoadOfflineAnalysisAsyncTask;
+import com.mtr.application.AsyncTasks.SaveOfflineFilesTask;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
@@ -55,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private AlertDialog editDialog;
     private TextView bookNameTextView, bookEanTextView, totalAmountTextView, soldAmountTextView, supplierTextView, ipAddressTextView, amountInfoTextView, locationTextView, rankTextView, authorTextView, loadingInfoTextView;
     private EditText inputIpAddress;
-    private AlertDialog ipDialog, deleteDialog, loadingDialog, importDialog, filechooserdialog;
+    private AlertDialog ipDialog, deleteDialog, loadingDialog, importDialog, exportDialog, savingDialog, exportInfoDialog;
     private final Activity scannerActivity = this;
     private static final int PERMISSION_REQUEST_CODE = 200;
     private ProgressBar progressBar;
@@ -86,9 +84,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         Model.getInstance().setContext(this);
 
-        createFileChooserDialog();
         createImportAlertDialog();
+        createExportAlertDialog();
         createLoadingDialog();
+        createSavingDialog();
         createIpAddressAlertDialog();
         createDeleteDialog();
         setToolbar();
@@ -105,6 +104,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         checkForStoragePermission();
 
+        amountInfoTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!Model.getInstance().getOrders().isEmpty() || !Model.getInstance().getReturns().isEmpty()) {
+                    Intent intent = new Intent(MainActivity.this, ChangesInfoActivity.class);
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(MainActivity.this, "Vratky/Objednávky jsou prázdné", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
 
@@ -147,59 +157,53 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ipDialog = new AlertDialog.Builder(this).setView(view).create();
     }
 
+
     private void createImportAlertDialog() {
         View view = getLayoutInflater().inflate(R.layout.import_dialog, null);
         view.findViewById(R.id.offlineButton).setOnClickListener(this);
         view.findViewById(R.id.onlineButton).setOnClickListener(this);
+        view.findViewById(R.id.importBackButton).setOnClickListener(this);
         importDialog = new AlertDialog.Builder(this).setView(view).create();
     }
 
-    private void createFileChooserDialog() {
-        View view = getLayoutInflater().inflate(R.layout.filechooser_dialog, null);
-        view.findViewById(R.id.filechooserBackButton).setOnClickListener(this);
-        fileChooserListView = view.findViewById(R.id.filechooserListView);
-        fileChooserListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                lastDirectory = pathHistory.get(count);
-                if (lastDirectory.equals(adapterView.getItemAtPosition(i))) {
-                    System.out.println("TEST1");
-                    readExcelData(lastDirectory);
-                } else {
-                    System.out.println("TEST2");
-                    count++;
-                    pathHistory.add(count, (String) adapterView.getItemAtPosition(i));
-                    System.out.println(adapterView.getItemAtPosition(i));
-                    checkInternalStorage();
-
-                }
-            }
-        });
-        filechooserdialog = new AlertDialog.Builder(this).setView(view).create();
+    private void createExportAlertDialog() {
+        View view = getLayoutInflater().inflate(R.layout.export_dialog, null);
+        view.findViewById(R.id.offlineExportButton).setOnClickListener(this);
+        view.findViewById(R.id.onlineExportButton).setOnClickListener(this);
+        view.findViewById(R.id.backExportDialog).setOnClickListener(this);
+        exportDialog = new AlertDialog.Builder(this).setView(view).create();
     }
 
-    private void readExcelData(String filePath) {
-        File input = new File(filePath);
 
-        try (BufferedReader bw = new BufferedReader(new FileReader(input))) {
-            String line = "";
-            while ((line = bw.readLine()) != null) {
-                System.out.println(line);
+    private void checkInternalStorage() {
+        try {
+            if (!Environment.getExternalStorageState().equals(
+                    Environment.MEDIA_MOUNTED)) {
+            } else {
+                file = new File(pathHistory.get(count));
             }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+            listFile = file.listFiles();
+            ;
+            filePathStrings = new String[listFile.length];
+            FileNameStrings = new String[listFile.length];
+
+            for (int i = 0; i < listFile.length; i++) {
+                filePathStrings[i] = listFile[i].getAbsolutePath();
+                FileNameStrings[i] = listFile[i].getName();
+            }
+            ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, filePathStrings);
+            fileChooserListView.setAdapter(adapter);
+        } catch (NullPointerException e) {
             e.printStackTrace();
         }
-        filechooserdialog.hide();
     }
 
 
     private void createDeleteDialog() {
         View view = getLayoutInflater().inflate(R.layout.delete_dialog, null);
-        view.findViewById(R.id.deleteAllButton).setOnClickListener(MainActivity.this);
+        view.findViewById(R.id.printOrdersButton).setOnClickListener(MainActivity.this);
         view.findViewById(R.id.deleteOrdersButton).setOnClickListener(MainActivity.this);
-        view.findViewById(R.id.deleteReturnsButton).setOnClickListener(MainActivity.this);
+        view.findViewById(R.id.printReturnsButton).setOnClickListener(MainActivity.this);
         view.findViewById(R.id.backDeleteButton).setOnClickListener(MainActivity.this);
 
         deleteDialog = new AlertDialog.Builder(this).setView(view).create();
@@ -211,6 +215,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         TextView loadingTextView = (TextView) view.findViewById(R.id.loadingTextView);
         progressBar.setVisibility(View.VISIBLE);
         loadingDialog = new AlertDialog.Builder(this).setView(view).create();
+    }
+
+    private void createSavingDialog() {
+        View view = getLayoutInflater().inflate(R.layout.saving_data_dialog, null);
+        ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
+        TextView loadingTextView = (TextView) view.findViewById(R.id.loadingTextView);
+        progressBar.setVisibility(View.VISIBLE);
+        savingDialog = new AlertDialog.Builder(this).setView(view).create();
     }
 
 
@@ -350,12 +362,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.saveButton:
                 handleSaveButton();
                 break;
-            case R.id.importDataButton:
-                handleImportDataButton();
-                break;
-            case R.id.exportButton:
-                handleExportButton();
-                break;
             case R.id.backButtonIp:
                 handleIpBackButton();
                 break;
@@ -365,10 +371,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.deleteOrdersButton:
                 handleDeleteOrdersButton();
                 break;
-            case R.id.deleteAllButton:
+            case R.id.printOrdersButton:
                 handleDeleteAllButton();
                 break;
-            case R.id.deleteReturnsButton:
+            case R.id.printReturnsButton:
                 handleDeleteReturnsButton();
                 break;
             case R.id.deleteButton:
@@ -386,13 +392,61 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.onlineButton:
                 handleOnlineButton();
                 break;
-            case R.id.filechooserBackButton:
-                handleFilechooserBackButton();
+            case R.id.offlineExportButton:
+                handleOfflineExportButton();
+                break;
+            case R.id.onlineExportButton:
+                handleOnlineExportButton();
+                break;
+            case R.id.backExportDialog:
+                handleExportBackButton();
+                break;
+            case R.id.importBackButton:
+                handleImportBackButton();
                 break;
             default:
                 break;
         }
 
+    }
+
+    private void handleAmountInfoTextViewClick() {
+        System.out.println("test");
+        exportInfoDialog.show();
+    }
+
+
+    private void handleInfoBackButton() {
+        exportInfoDialog.hide();
+    }
+
+    private void handleExportBackButton() {
+        exportDialog.hide();
+    }
+
+    private void handleImportBackButton() {
+        importDialog.hide();
+    }
+
+    private void handleOfflineExportButton() {
+        if (!Model.getInstance().getOrders().isEmpty() || !Model.getInstance().getReturns().isEmpty()) {
+            SaveOfflineFilesTask save = new SaveOfflineFilesTask(this, savingDialog);
+            save.execute("");
+            exportDialog.hide();
+        } else {
+            Toast.makeText(this, "Není co exportovat!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
+    private void handleOnlineExportButton() {
+        if (!Model.getInstance().getOrders().isEmpty() || !Model.getInstance().getReturns().isEmpty()) {
+            Client export = new Client(Model.getInstance().getIp(), this, savingDialog);
+            export.execute("export");
+        } else {
+            Toast.makeText(this, "Není co exportovat!", Toast.LENGTH_SHORT).show();
+        }
+        exportDialog.hide();
     }
 
 
@@ -479,13 +533,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void handleExportButton() {
-        if (!Model.getInstance().getOrders().isEmpty() || !Model.getInstance().getReturns().isEmpty()) {
-            Client export = new Client(Model.getInstance().getIp(), this, loadingDialog);
-            export.execute("export");
-        } else {
-            Toast.makeText(this, "Není co exportovat!", Toast.LENGTH_SHORT).show();
-        }
-
+        exportDialog.show();
     }
 
     private void handleImportDataButton() {
@@ -501,22 +549,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void handleOfflineButton() {
-        showFileChooser();
+        count = 0;
+        pathHistory = new ArrayList<String>();
+        pathHistory.add(count, System.getenv("EXTERNAL_STORAGE"));
+        checkInternalStorage();
+
+        boolean fileFound = false;
+        for (int index = 0; index < listFile.length; index++) {
+            String name = listFile[index].getName();
+            if ("ssbAnalyza".equalsIgnoreCase(name)) {
+                String path = listFile[index].getAbsolutePath();
+                LoadOfflineAnalysisAsyncTask loadAnalysis = new LoadOfflineAnalysisAsyncTask(getApplicationContext(), loadingDialog, path);
+                loadAnalysis.execute("");
+                fileFound = true;
+                break;
+            }
+        }
+        if (fileFound == false) {
+            Toast.makeText(this, "Soubor ssbAnalyza nebyl nalezen", Toast.LENGTH_LONG).show();
+        }
         importDialog.hide();
     }
 
 
-    private void showFileChooser() {
-        count = 0;
-        pathHistory = new ArrayList<String>();
-        pathHistory.add(count, System.getenv("EXTERNAL_STORAGE"));
-
-        checkInternalStorage();
-        filechooserdialog.show();
-    }
-
     private void checkForStoragePermission() {
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
+        //Build.VERSION_CODES.LOLLIPOP
+        if (Build.VERSION.SDK_INT >= 23) {
             int permissionCheck = this.checkSelfPermission("Manifest.permission.READ_EXTERNAL_STORAGE");
             permissionCheck += this.checkSelfPermission("Manifest.permission.WRITE_EXTERNAL_STORAGE");
             if (permissionCheck != 0) {
@@ -527,48 +585,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private void checkInternalStorage() {
-        try {
-            if (!Environment.getExternalStorageState().equals(
-                    Environment.MEDIA_MOUNTED)) {
-            } else {
-
-                file = new File(pathHistory.get(count));
-            }
-            listFile = file.listFiles();
-            filePathStrings = new String[listFile.length];
-            FileNameStrings = new String[listFile.length];
-
-            for (int i = 0; i < listFile.length; i++) {
-                filePathStrings[i] = listFile[i].getAbsolutePath();
-                FileNameStrings[i] = listFile[i].getName();
-            }
-            ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, filePathStrings);
-            fileChooserListView.setAdapter(adapter);
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void handleFilechooserBackButton() {
-        filechooserdialog.hide();
-    }
-//    private static final int FILE_SELECT_CODE = 0;
-//    private void showFileChooser() {
-//        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-//        intent.setType("*/*");
-//        intent.addCategory(Intent.CATEGORY_OPENABLE);
-//
-//        try {
-//            startActivityForResult(
-//                    Intent.createChooser(intent, "Select a File to Upload"),
-//                    FILE_SELECT_CODE);
-//        } catch (android.content.ActivityNotFoundException ex) {
-//            // Potentially direct the user to the Market with a Dialog
-//            Toast.makeText(this, "Please install a File Manager.",
-//                    Toast.LENGTH_SHORT).show();
-//        }
-//    }
 
     private void clearAllTextViews() {
         bookNameTextView.setText("");
@@ -691,6 +707,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         amountInfoTextView.setText(String.format("%s\n%s", returns, orders));
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_HOME);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
     }
 
 

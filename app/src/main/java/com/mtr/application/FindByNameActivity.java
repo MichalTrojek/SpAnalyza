@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.mtr.application.adapters.MyAdapter;
 
+import java.text.Normalizer;
 import java.util.ArrayList;
 
 import application.R;
@@ -54,7 +55,8 @@ public class FindByNameActivity extends AppCompatActivity {
                 DatabaseAccess db = DatabaseAccess.getInstance(getApplicationContext());
                 db.open();
                 dataSet.clear();
-                dataSet.addAll(db.fullTextSearch(editable.toString()));
+                String normalizedInput = Normalizer.normalize(editable.toString(), Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "").toLowerCase();
+                dataSet.addAll(db.fullTextSearch(normalizedInput));
                 adapter.notifyDataSetChanged();
                 db.close();
             }

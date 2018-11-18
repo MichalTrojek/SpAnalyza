@@ -16,7 +16,7 @@
     <string name="backButton">Zpět</string>
     <string name="saveButton">Uložit</string>
     <string name="developedBy">(c) 2018, Michal Trojek</string>
-    <string name="version">Verze: 16</string>
+    <string name="version">Verze: 24</string>
     <string name="importDataButton">Nahrát</string>
     <string name="editIpAddressButton">Změnit IP Adresu</string>
     <string name="inputIpAddressHint">Vlož IP Adresu</string>
@@ -25,6 +25,9 @@
     <string name="loadingAnalysis">Nahrávám analýzu...</string>
     <string name="loadingAnalyisisTitle">Nahrávání analýzy</string>
 
+
+    <string name="printReturns">Vytisknout vratky</string>
+    <string name="printOrders">Vytisknout objednavky</string>
 
     <string name="deleteOrders">Vymazat objednávky</string>
     <string name="deleteReturns">Vymazat vratky</string>
@@ -43,5 +46,12 @@
     <string name="offlineButton">Nahrát z interní paměti</string>
     <string name="onlineButton">Nahrát přes wifi</string>
 
+    <string name="saveDataTitle">Ukladání dat</string>
+    <string name="saveDataText">Ukládam data..</string>
+
+
+    <string name="exportOnlineButton">Odeslat data přes wifi</string>
+    <string name="exportOfflineButton">Uložit do interní paměti</string>
+    <string name="exportInfoPrintButton">Vytisknout</string>
 
 </resources>

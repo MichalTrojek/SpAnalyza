@@ -32,6 +32,16 @@ public class Settings {
         editor.apply();
     }
 
+    public void setDatabaseId(int databaseId) {
+        editor = prefs.edit();
+        editor.putInt("databaseId", databaseId);
+        editor.apply();
+    }
+
+    public int getDatabaseId() {
+        return prefs.getInt("databaseId", 1);
+    }
+
 
     public void setAnalysis(HashMap<String, ArticleRow> analysis) {
         editor = prefs.edit();
@@ -96,20 +106,6 @@ public class Settings {
         }
         return returns;
     }
-
-
-//    public ArrayList<Article> getArticles() {
-//        Gson gson = new Gson();
-//        String json = prefs.getString("articles", null);
-//        Type type = new TypeToken<ArrayList<Article>>() {
-//        }.getType();
-//        ArrayList<Article> articles;
-//        articles = gson.fromJson(json, type);
-//        if (articles == null) {
-//            articles = new ArrayList<>();
-//        }
-//        return articles;
-//    }
 
 
 }

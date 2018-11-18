@@ -48,7 +48,6 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
         holder.layoutHolder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                System.out.println(item.getEan());
                 Intent intent = new Intent(context, MainActivity.class);
                 intent.putExtra("ean", item.getEan());
                 context.startActivity(intent);

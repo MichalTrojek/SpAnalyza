@@ -4,12 +4,21 @@ public class Item {
 
     private String ean;
     private String name;
+    private String price;
 
 
     public Item() {
 
     }
 
+
+    public void setPrice(String price) {
+        this.price = price;
+    }
+
+    public String getPrice() {
+        return price;
+    }
 
     public String getEan() {
         return ean;

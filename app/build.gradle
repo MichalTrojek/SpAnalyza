@@ -4,10 +4,10 @@ android {
     compileSdkVersion 27
     defaultConfig {
         applicationId "com.mtr.skladovypomocnikanalyza"
-        minSdkVersion 24
+        minSdkVersion 22
         targetSdkVersion 27
-        versionCode 16
-        versionName "16.0"
+        versionCode 24
+        versionName "24.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
@@ -31,6 +31,7 @@ dependencies {
     implementation 'com.android.support:multidex:1.0.3'
     implementation 'com.readystatesoftware.sqliteasset:sqliteassethelper:+'
     implementation group: 'org.apache.poi', name: 'poi-ooxml', version: '3.9'
+
     implementation 'com.github.mancj:MaterialSearchBar:0.7.6'
     implementation 'com.journeyapps:zxing-android-embedded:3.0.2@aar'
     implementation 'com.google.zxing:core:3.2.0'
@@ -38,7 +39,7 @@ dependencies {
 
 
     implementation 'com.google.code.gson:gson:2.8.5'
-
+//    implementation group: 'org.apache.poi', name: 'poi-ooxml', version: '3.17'
 
 }
 configurations.all {
@@ -51,4 +52,3 @@ configurations.all {
         }
     }
 }
-
