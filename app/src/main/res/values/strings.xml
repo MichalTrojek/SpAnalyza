@@ -16,7 +16,7 @@
     <string name="backButton">Zpět</string>
     <string name="saveButton">Uložit</string>
     <string name="developedBy">(c) 2018, Michal Trojek</string>
-    <string name="version">Verze: 24</string>
+    <string name="version">Verze: 26</string>
     <string name="importDataButton">Nahrát</string>
     <string name="editIpAddressButton">Změnit IP Adresu</string>
     <string name="inputIpAddressHint">Vlož IP Adresu</string>
