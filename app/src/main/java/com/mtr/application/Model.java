@@ -51,13 +51,11 @@ public class Model {
         this.settings = new Settings(c);
     }
 
-    public void setDatabaseId(int id) {
-        this.settings.setDatabaseId(id);
+    public Settings getSettings(){
+        return this.settings;
     }
 
-    public int getDatabaseId() {
-        return this.settings.getDatabaseId();
-    }
+
 
 
     public String getIp() {

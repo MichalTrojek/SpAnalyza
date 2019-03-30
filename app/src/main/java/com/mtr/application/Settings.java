@@ -32,14 +32,17 @@ public class Settings {
         editor.apply();
     }
 
-    public void setDatabaseId(int databaseId) {
-        editor = prefs.edit();
-        editor.putInt("databaseId", databaseId);
-        editor.apply();
+
+
+
+    public int getCurrentDatabaseVersion() {
+        return prefs.getInt("currentDbVersion", -99);
     }
 
-    public int getDatabaseId() {
-        return prefs.getInt("databaseId", 1);
+    public void setCurrentDatabaseVersion(int currentDbVersion) {
+        editor = prefs.edit();
+        editor.putInt("currentDbVersion", currentDbVersion);
+        editor.apply();
     }
 
 

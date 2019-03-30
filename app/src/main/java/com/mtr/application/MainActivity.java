@@ -5,9 +5,12 @@ import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -15,7 +18,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -23,10 +25,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -45,25 +45,23 @@ import java.util.ArrayList;
 import java.util.regex.Pattern;
 
 import application.R;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private EditText eanInput;
     private Button editButton, deleteButton, scannerButton;
     private AlertDialog editDialog;
-    private TextView bookNameTextView, bookEanTextView, totalAmountTextView, soldAmountTextView, supplierTextView, ipAddressTextView, amountInfoTextView, locationTextView, rankTextView, authorTextView, loadingInfoTextView;
+    private TextView bookNameTextView, bookEanTextView, totalAmountTextView, soldAmountTextView, supplierTextView, ipAddressTextView, amountInfoTextView, locationTextView, rankTextView, authorTextView, downloadDatabaseTextview;
     private EditText inputIpAddress;
-    private AlertDialog ipDialog, deleteDialog, loadingDialog, importDialog, exportDialog, savingDialog, exportInfoDialog;
+    private AlertDialog ipDialog, deleteDialog, loadingAnalysisDialog, importDialog, exportDialog, savingDialog, exportInfoDialog, downloadingDialog;
     private final Activity scannerActivity = this;
-    private static final int PERMISSION_REQUEST_CODE = 200;
-    private ProgressBar progressBar;
-    private ListView fileChooserListView;
-    private ArrayList<String> dataSet = new ArrayList<>();
-
-
-    private RecyclerView recyclerView;
-    private RecyclerView.Adapter adapter;
-    private RecyclerView.LayoutManager layoutManager;
+    private static final int SCANNER_PERMISSION_REQUEST_CODE = 200;
+    private ProgressBar downloadingDatabaseProgressBar;
 
 
     private String[] filePathStrings;
@@ -72,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     File file;
 
     ArrayList<String> pathHistory;
-    String lastDirectory;
+    //    String lastDirectory;
     int count = 0;
 
 
@@ -86,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         createImportAlertDialog();
         createExportAlertDialog();
-        createLoadingDialog();
+        createLoadingAnalysisDialog();
         createSavingDialog();
         createIpAddressAlertDialog();
         createDeleteDialog();
@@ -102,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             String ean = getIntent().getStringExtra("ean");
             Model.getInstance().scannerUpdate(ean, eanInput, bookNameTextView, bookEanTextView, totalAmountTextView, soldAmountTextView, supplierTextView, locationTextView, rankTextView, authorTextView);
         }
-        checkForStoragePermission();
+
 
         amountInfoTextView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -123,6 +121,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onStart();
         handleLoadingAnalysis();
         handleLoadingOrdersAndReturns();
+        askForPermission();
     }
 
     private void handleLoadingAnalysis() {
@@ -175,30 +174,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-    private void checkInternalStorage() {
-        try {
-            if (!Environment.getExternalStorageState().equals(
-                    Environment.MEDIA_MOUNTED)) {
-            } else {
-                file = new File(pathHistory.get(count));
-            }
-            listFile = file.listFiles();
-            ;
-            filePathStrings = new String[listFile.length];
-            FileNameStrings = new String[listFile.length];
-
-            for (int i = 0; i < listFile.length; i++) {
-                filePathStrings[i] = listFile[i].getAbsolutePath();
-                FileNameStrings[i] = listFile[i].getName();
-            }
-            ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, filePathStrings);
-            fileChooserListView.setAdapter(adapter);
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        }
-    }
-
-
     private void createDeleteDialog() {
         View view = getLayoutInflater().inflate(R.layout.delete_dialog, null);
         view.findViewById(R.id.printOrdersButton).setOnClickListener(MainActivity.this);
@@ -209,12 +184,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         deleteDialog = new AlertDialog.Builder(this).setView(view).create();
     }
 
-    private void createLoadingDialog() {
+    private void createLoadingAnalysisDialog() {
         View view = getLayoutInflater().inflate(R.layout.loading_analysis_dialog, null);
         ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
         TextView loadingTextView = (TextView) view.findViewById(R.id.loadingTextView);
         progressBar.setVisibility(View.VISIBLE);
-        loadingDialog = new AlertDialog.Builder(this).setView(view).create();
+        loadingAnalysisDialog = new AlertDialog.Builder(this).setView(view).create();
+    }
+
+    private void createDownloadingDatabaseDialog() {
+        View view = getLayoutInflater().inflate(R.layout.start_downloading_dialog, null);
+        downloadingDatabaseProgressBar = view.findViewById(R.id.progressBar);
+        downloadDatabaseTextview = (TextView) view.findViewById(R.id.loadingInfoTextView);
+        downloadingDialog = new AlertDialog.Builder(this).setView(view).setCancelable(false).create();
     }
 
     private void createSavingDialog() {
@@ -411,7 +393,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void handleAmountInfoTextViewClick() {
-        System.out.println("test");
+
         exportInfoDialog.show();
     }
 
@@ -543,7 +525,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void handleOnlineButton() {
         Model.getInstance().clearAnalysis();
         clearAllTextViews();
-        Client client = new Client(Model.getInstance().getIp(), this, loadingDialog);
+        Client client = new Client(Model.getInstance().getIp(), this, loadingAnalysisDialog);
         client.execute("analyza");
         importDialog.hide();
     }
@@ -559,7 +541,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             String name = listFile[index].getName();
             if ("ssbAnalyza".equalsIgnoreCase(name)) {
                 String path = listFile[index].getAbsolutePath();
-                LoadOfflineAnalysisAsyncTask loadAnalysis = new LoadOfflineAnalysisAsyncTask(getApplicationContext(), loadingDialog, path);
+                LoadOfflineAnalysisAsyncTask loadAnalysis = new LoadOfflineAnalysisAsyncTask(getApplicationContext(), loadingAnalysisDialog, path);
                 loadAnalysis.execute("");
                 fileFound = true;
                 break;
@@ -572,19 +554,113 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-    private void checkForStoragePermission() {
-        //Build.VERSION_CODES.LOLLIPOP
-        if (Build.VERSION.SDK_INT >= 23) {
-            int permissionCheck = this.checkSelfPermission("Manifest.permission.READ_EXTERNAL_STORAGE");
-            permissionCheck += this.checkSelfPermission("Manifest.permission.WRITE_EXTERNAL_STORAGE");
-            if (permissionCheck != 0) {
-                this.requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, 1001); //Any number
+    private void checkInternalStorage() {
+        try {
+            if (!Environment.getExternalStorageState().equals(
+                    Environment.MEDIA_MOUNTED)) {
+            } else {
+                file = new File(pathHistory.get(count));
             }
-        } else {
-            System.out.println("No need for permission");
+            listFile = file.listFiles();
+            filePathStrings = new String[listFile.length];
+            FileNameStrings = new String[listFile.length];
+            for (int i = 0; i < listFile.length; i++) {
+                filePathStrings[i] = listFile[i].getAbsolutePath();
+                FileNameStrings[i] = listFile[i].getName();
+            }
+
+        } catch (NullPointerException e) {
+            e.printStackTrace();
         }
     }
 
+
+    public void askForPermission() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                // you already have a permission
+                checkForDatabaseUpdate();
+            } else {
+                // asks for permission
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+            }
+        } else { //you dont need to worry about these stuff below api level 23
+
+        }
+    }
+
+
+    int onlineDbVersionNumber;
+
+    private void checkForDatabaseUpdate() {
+        Retrofit retrofit = new Retrofit.Builder().baseUrl(Api.BASE_URL).addConverterFactory(GsonConverterFactory.create()).build();
+        Api api = retrofit.create(Api.class);
+        Call<DatabaseVersion> call = api.getDatabaseVersionInfo();
+        call.enqueue(new Callback<DatabaseVersion>() {
+            @Override
+            public void onResponse(Call<DatabaseVersion> call, Response<DatabaseVersion> response) {
+                if (!response.isSuccessful()) {
+                    Toast.makeText(getApplicationContext(), "Dotaz nebyl úspešný" + response.code(), Toast.LENGTH_SHORT).show();
+                    return;
+                } else {
+                    DatabaseVersion version = response.body();
+                    onlineDbVersionNumber = Integer.valueOf(version.getDatabaseVersion());
+                    if (onlineDbVersionNumber > Model.getInstance().getSettings().getCurrentDatabaseVersion()) {
+                        if (isWifiEnabled()) {
+                            updateFoundDialog(MainActivity.this);
+                        } else {
+                            Toast.makeText(getApplicationContext(), "Je dostupná nová databáze, pro stažení se připojte k WIFI.", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<DatabaseVersion> call, Throwable t) {
+                Toast.makeText(getApplicationContext(), "Nepřipojeno k internetu", Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private void updateFoundDialog(Context context) {
+        new AlertDialog.Builder(context).setTitle(String.format("Aktualizace databaze (v.%d)", onlineDbVersionNumber)).setMessage("Je dostupná aktualizace databáze.").setPositiveButton("Aktualizovat", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                createDownloadingDatabaseDialog();
+                updateDatabase();
+            }
+        }).setNegativeButton("Neaktualizovat", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        }).setIcon(R.drawable.ic_file_download).show();
+    }
+
+
+    private void updateDatabase() {
+        try {
+
+            DatabaseDownloader databaseDownloader = new DatabaseDownloader(this, onlineDbVersionNumber, downloadingDialog, downloadingDatabaseProgressBar);
+            databaseDownloader.download("http://www.skladovypomocnik.cz/BooksDatabase.db");
+
+        } catch (Exception e) {
+            Toast.makeText(this, "Aktulalizace se nezdařila.", Toast.LENGTH_LONG).show();
+            e.printStackTrace();
+        }
+    }
+
+    public boolean isWifiEnabled() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(
+                Context.CONNECTIVITY_SERVICE);
+        NetworkInfo wifiNetwork = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
+        if (wifiNetwork != null && wifiNetwork.isConnected()) {
+            return true;
+        }
+        return false;
+    }
 
     private void clearAllTextViews() {
         bookNameTextView.setText("");
@@ -640,7 +716,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.CAMERA},
-                    PERMISSION_REQUEST_CODE);
+                    SCANNER_PERMISSION_REQUEST_CODE);
         } else {
             invokeScanner();
         }
@@ -658,13 +734,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                           int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == PERMISSION_REQUEST_CODE) {
+        if (requestCode == SCANNER_PERMISSION_REQUEST_CODE) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 invokeScanner();
             } else {
-                Toast.makeText(this, "Nebyla daná opravnění pro kameru", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Nebyla dána opravnění ke skenru, aplikace nebude fungovat správně.", Toast.LENGTH_SHORT).show();
+            }
+        } else if (requestCode == 1) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                checkForDatabaseUpdate();
+            } else {
+                Toast.makeText(this, "Nebyla dána opravnění, aplikace nebude fungovat správně.", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -683,8 +766,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
-
-
     }
 
 
