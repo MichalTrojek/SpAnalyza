@@ -1,11 +1,7 @@
 <resources>
     <string name="app_name">SpAnalyza</string>
     <string name="input_ean">Vlož EAN</string>
-    <string name="book_name"> </string>
-    <string name="book_ean"> </string>
-    <string name="total_amount"> </string>
-    <string name="sold_amount"></string>
-    <string name="supplier_name"></string>
+
     <string name="order_amount">Objednat</string>
     <string name="return_amount">Vrátit</string>
 
@@ -18,7 +14,7 @@
     <string name="developedBy">(c) 2018, Michal Trojek</string>
 
 
-    <string name="version">Verze: 28</string>
+    <string name="version">Verze: 29</string>
 
 
     <string name="importDataButton">Nahrát</string>

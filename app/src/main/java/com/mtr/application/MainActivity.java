@@ -31,9 +31,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.MobileAds;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.mtr.application.AsyncTasks.Client;
@@ -92,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setButtons();
         setTextViews();
         setEanInputListenerToHandleEnterKey();
-        setAds();
+
         createEditDialog();
         hideKeyboard(eanInput);
 
@@ -308,13 +305,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return false;
     }
 
-
-    private void setAds() {
-        MobileAds.initialize(this, "ca-app-pub-6403268384265634~6879673047");
-        AdView adView = (AdView) findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
-        adView.loadAd(adRequest);
-    }
 
     private EditText returnAmountInput;
     private EditText orderAmountInput;

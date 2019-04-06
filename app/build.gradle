@@ -6,8 +6,8 @@ android {
         applicationId "com.mtr.skladovypomocnikanalyza"
         minSdkVersion 22
         targetSdkVersion 27
-        versionCode 28
-        versionName "28.0"
+        versionCode 29
+        versionName "29.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
@@ -50,6 +50,7 @@ dependencies {
 
 //    implementation group: 'org.apache.poi', name: 'poi-ooxml', version: '3.17'
 
+    implementation 'com.android.support:design:27.1.1'
 }
 configurations.all {
     resolutionStrategy.eachDependency { DependencyResolveDetails details ->
