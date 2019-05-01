@@ -141,7 +141,7 @@ public class Model {
             bookNameTextView.setText("Název: " + a.getName());
             bookEanTextView.setText(String.format("EAN: %s", a.getEan()));
             supplierTextView.setTextColor(ContextCompat.getColor(context, R.color.red));
-            supplierTextView.setText("\n\n               Položka není v analýze.");
+            supplierTextView.setText("\n\n               Položka není v analýze.\n             Neprodal se ani jeden kus.");
             locationTextView.setText("");
             rankTextView.setText(String.format("Cena: %s ,- Kč", a.getPrice()));
             authorTextView.setText("");
@@ -158,136 +158,6 @@ public class Model {
 
     }
 
-//    public void updateDisplay(EditText eanInput, TextView bookNameTextView, TextView bookEanTextView, TextView totalAmountTextView, TextView soldAmountTextView, TextView supplierTextView, TextView locationTextView, TextView rankTextView, TextView authorTextView) {
-//        String ean = eanInput.getText().toString();
-//        ArticleRow a = findEan(ean);
-//        bookNameTextView.setText("");
-//        bookEanTextView.setText("");
-//        totalAmountTextView.setText("");
-//        soldAmountTextView.setText("");
-//        supplierTextView.setText("");
-//        locationTextView.setText("");
-//        rankTextView.setText("");
-//        authorTextView.setText("");
-//        supplierTextView.setTextColor(ContextCompat.getColor(context, R.color.black));
-//        if (a.getEan().equalsIgnoreCase("neznamy")) {// item does not exist
-//            selectedItem = null;
-//            Toast.makeText(context, "Položka není v systému", Toast.LENGTH_SHORT).show();
-//            bookNameTextView.setText("");
-//            bookEanTextView.setText("");
-//            totalAmountTextView.setText("");
-//            soldAmountTextView.setText("");
-//            supplierTextView.setText("");
-//            locationTextView.setText("");
-//            rankTextView.setText("");
-//            authorTextView.setText("");
-//        } else if (a.getSales().isEmpty()) {// all items in analysis have some record of sale. This block handles situation when item is not in analysis.
-//            bookNameTextView.setText("Název: " + a.getName());
-//            bookEanTextView.setText(String.format("EAN: %s", a.getEan()));
-//            supplierTextView.setTextColor(ContextCompat.getColor(context, R.color.red));
-//            supplierTextView.setText("\n\n               Položka není v analýze.");
-//            locationTextView.setText("");
-//            rankTextView.setText(String.format("Cena: %s ,- Kč", a.getPrice()));
-//            authorTextView.setText("");
-//        } else {
-//
-//
-//            String text = String.format("Název: %s" +
-//                            "\nEAN: %s" +
-//                            "\nDodavatel: %s (%s)" +
-//                            "\nStav skladu: %s" +
-//                            "\nZásoby: %s" +
-//                            "\nPřijato: %s" +
-//                            "\nProdeje: %s/%s" +
-//                            "\nPoslední prodej: %s" +
-//                            "\nCena: %s,- Kč" +
-//                            "\nObrat: %s,- Kč" +
-//                            "\nPořadí prodeje: %s" +
-//                            "\nPořadí eshop: %s" +
-//                            "\nAutor: %s" +
-//                            "\nLOC: %s",
-//                    a.getName(),
-//                    a.getEan(),
-//                    a.getSupplier(), pickConsignmentOrSale(a),
-//                    a.getStoredAmount(), cleanSupplyString(a.getSupply()),
-//                    a.getDateOfLastDelivery(),
-//                    a.getSales(), a.getSales2(),
-//                    a.getDateOfLastSale(),
-//                    a.getPrice(),
-//                    a.getRevenue(),
-//                    a.getRank(),
-//                    a.getEshopRank(),
-//                    a.getAuthor(),
-//                    a.getLocations());
-//
-//
-//            bookNameTextView.setText(text);
-//        }
-//
-//    }
-
-//    public void scannerUpdate(String ean, EditText eanInput, TextView bookNameTextView, TextView bookEanTextView, TextView totalAmountTextView, TextView soldAmountTextView, TextView supplierTextView, TextView locationTextView, TextView rankTextView, TextView authorTextView) {
-//        ArticleRow a = findEan(ean);
-//        bookNameTextView.setText("");
-//        bookEanTextView.setText("");
-//        totalAmountTextView.setText("");
-//        soldAmountTextView.setText("");
-//        supplierTextView.setText("");
-//        locationTextView.setText("");
-//        rankTextView.setText("");
-//        authorTextView.setText("");
-//        supplierTextView.setTextColor(ContextCompat.getColor(context, R.color.black));
-//        if (a.getEan().equalsIgnoreCase("neznamy")) {// item does not exist
-//            selectedItem = null;
-//            Toast.makeText(context, "Položka není v systému", Toast.LENGTH_SHORT).show();
-//            bookNameTextView.setText("");
-//            bookEanTextView.setText("");
-//            totalAmountTextView.setText("");
-//            soldAmountTextView.setText("");
-//            supplierTextView.setText("");
-//            locationTextView.setText("");
-//            rankTextView.setText("");
-//            authorTextView.setText("");
-//        } else if (a.getSales().isEmpty()) {// all items in analysis have some record of sale. This block handles situation when item is not in analysis.
-//            bookNameTextView.setText("Název: " + a.getName());
-//            bookEanTextView.setText(String.format("EAN: %s", a.getEan()));
-//            supplierTextView.setTextColor(ContextCompat.getColor(context, R.color.red));
-//            supplierTextView.setText("\n\n               Položka není v analýze.");
-//            locationTextView.setText("");
-//            rankTextView.setText(String.format("Cena: %s ,- Kč", a.getPrice()));
-//            authorTextView.setText("");
-//        } else {
-//            String text = String.format("Název: %s" +
-//                            "\nEAN: %s" +
-//                            "\nDodavatel: %s (%s)" +
-//                            "\nStav skladu: %s" +
-//                            "\nZásoby: %s" +
-//                            "\nPřijato: %s" +
-//                            "\nProdeje: %s/%s" +
-//                            "\nPoslední prodej: %s" +
-//                            "\nCena: %s,- Kč" +
-//                            "\nObrat: %s,- Kč" +
-//                            "\nPořadí prodeje: %s" +
-//                            "\nPořadí eshop: %s" +
-//                            "\nAutor: %s" +
-//                            "\nLOC: %s",
-//                    a.getName(),
-//                    a.getEan(),
-//                    a.getSupplier(), pickConsignmentOrSale(a),
-//                    a.getStoredAmount(), cleanSupplyString(a.getSupply()),
-//                    a.getDateOfLastDelivery(),
-//                    a.getSales(), a.getSales2(),
-//                    a.getDateOfLastSale(),
-//                    a.getPrice(),
-//                    a.getRevenue(),
-//                    a.getRank(),
-//                    a.getEshopRank(),
-//                    a.getAuthor(),
-//                    a.getLocations());
-//            bookNameTextView.setText(text);
-//        }
-//
-//    }
 
     public void scannerUpdate(String ean, EditText eanInput, TextView bookNameTextView, TextView bookEanTextView, TextView totalAmountTextView, TextView soldAmountTextView, TextView supplierTextView, TextView locationTextView, TextView rankTextView, TextView authorTextView) {
         ArticleRow a = findEan(ean);
@@ -315,7 +185,7 @@ public class Model {
             bookNameTextView.setText("Název: " + a.getName());
             bookEanTextView.setText(String.format("EAN: %s", a.getEan()));
             supplierTextView.setTextColor(ContextCompat.getColor(context, R.color.red));
-            supplierTextView.setText("\n\n               Položka není v analýze.");
+            supplierTextView.setText("\n\n               Položka není v analýze.\n             Neprodal se ani jeden kus.");
             locationTextView.setText("");
             rankTextView.setText(String.format("Cena: %s ,- Kč", a.getPrice()));
             authorTextView.setText("");
