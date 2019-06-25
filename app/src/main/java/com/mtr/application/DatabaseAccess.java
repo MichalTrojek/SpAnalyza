@@ -40,20 +40,6 @@ public class DatabaseAccess {
     }
 
 
-//    public String getBook(String ean) {
-//        if (!ean.isEmpty()) {
-//            Cursor cursor = db.rawQuery("Select NAME from articles where EAN =" + ean, new String[]{});
-//            StringBuffer buffer = new StringBuffer();
-//            if (cursor.moveToFirst()) {
-//                String name = cursor.getString(0);
-//                buffer.append("" + name);
-//                cursor.close();
-//                return buffer.toString();
-//            }
-//            cursor.close();
-//        }
-//        return "notFound";
-//    }
 
     public Item getBook(String ean) {
         Item item = new Item();

@@ -34,7 +34,7 @@ dependencies {
     implementation 'com.readystatesoftware.sqliteasset:sqliteassethelper:+'
     implementation group: 'org.apache.poi', name: 'poi-ooxml', version: '3.9'
 
-    implementation 'com.github.mancj:MaterialSearchBar:0.7.6'
+    implementation 'com.github.mancj:MaterialSearchBar:0.8.2'
     implementation 'com.journeyapps:zxing-android-embedded:3.0.2@aar'
     implementation 'com.google.zxing:core:3.2.0'
 

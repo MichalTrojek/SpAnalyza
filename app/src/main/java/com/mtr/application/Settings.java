@@ -33,8 +33,6 @@ public class Settings {
     }
 
 
-
-
     public int getCurrentDatabaseVersion() {
         return prefs.getInt("currentDbVersion", -99);
     }
