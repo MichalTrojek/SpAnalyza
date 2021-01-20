@@ -1,18 +1,21 @@
 # SpAnalyza
 [Android ] Rozšíření Skladového pomocníka do čtečky čárových kódů. Zpracovává analýzu prodejů.  Samostatně nepoužitelné.
 
-<h1>Uživatelská příručka</h1>
+## První spuštění
 
 Během prvního spuštění Vás aplikace nejdřív požádá o udělení oprávnění ke čtení a ukládání dat z interní paměti zařízení. Tato oprávnění jsou nutná pro tvorbu excelových souborů se seznamem zboží na vrácení a objednání. 
 
 Zároveň se během prvního spuštění rozbalí  přiložená SQLite databáze s čárovými kódy a názvy všech knížek, které firma Knihy Dobrovský prodává. Tato databáze se používá k fulltextovém vyhledávání podle názvu knížky a obsahuje přes 450 000 záznamů, takže v závislosti na výkonu Vašeho zařízení může první spuštění trvat o něco déle. 
 
+![uvodni2](https://user-images.githubusercontent.com/26610601/105231896-e19f3a80-5b67-11eb-8ccd-a161530343a7.png)
+
+
 V této části popíšu oba způsoby získávání dat.\bigskip
 
 
-\textbf{Importování dat pomocí podpůrného programu}
-\label{fig:import}
-\bigskip
+
+
+## Importování dat pomocí podpůrného programu
 
 
 
@@ -20,72 +23,46 @@ Ke spuštění pomocného programu je nutné mít nainstalovanou Javu a spoušt�
 
 Jakmile je IP adresa nastavená, tak už jenom stačí přetáhnout CSV soubor s daty z analýzy prodejů na ikonu padáku a v menu aplikace zahájit přenos dat do aplikace pomocí tlačítka "Nahrát data z PC". 
 
-Po nahrání dat je aplikace připravená k použití.\bigskip\bigskip\bigskip\bigskip
+Po nahrání dat je aplikace připravená k použití.
+
+![prevodnik2](https://user-images.githubusercontent.com/26610601/105232243-64c09080-5b68-11eb-986f-dc13a453d79d.png)
 
 
-\begin{figure}[h]
-\centering
-\includegraphics[width=\textwidth]{images/prevodnik}
-\caption{\emph{Propojení aplikace s podpůrným programem.}}   
-\label{fig:connect}
-\end{figure}
-
-\newpage
-\textbf{Importování dat z FTP serveru} \bigskip
+## Importování dat z FTP serveru
 
 
 Tento způsob je mnohem  jednoduší a pohodlnější než ten předchozí. V hlavním menu aplikace stačí kliknout na tlačítko "Nahrát data z FPT".  Poté vybrat prodejnu, vložit heslo a data se stáhnou po kliknutí na tlačítko "Stáhnout data z vybrané prodejny". 
 
 V pozadí aplikace se zároveň spustí služba, která v případě změny dat na FTP serveru provede automatickou aktualizaci dat.
 
-Některé prodejny ještě nepřešly na nový informační systém a  proto jsou jejich údaje z analýzy prodejů nekompletní. V době psání tohoto textu byly nejlepší prodejny na testování Brno Joštovka a Brno Vaňkovka. \bigskip\bigskip\bigskip\bigskip
-\bigskip
 
-\begin{figure}[h]
-\centering
-\includegraphics[width=50mm]{images/ftp}
-\caption{\emph{Fragment pro stahování dat z FTP.}  }
-\label{fig:ftp} 
-\end{figure}
-
-\newpage
-\subsection{Žebříček prodejů}
+![ftp](https://user-images.githubusercontent.com/26610601/105232586-e57f8c80-5b68-11eb-9931-69b86a658fe4.jpg)
 
 
-Po nahrání dat z analýzy prodejů do aplikace se umožní zobrazování žebříčku prodejů pro danou prodejnu. Žebříček se zobrazí pomocí tlačítka \textquotedbl Žebříček prodejů\textquotedbl{} v menu aplikace.
+
+## Žebříček prodejů
+
+
+Po nahrání dat z analýzy prodejů do aplikace se umožní zobrazování žebříčku prodejů pro danou prodejnu. Žebříček se zobrazí pomocí tlačítka 'Žebříček prodejů' v menu aplikace.
 
 Nahoře se zobrazuje celková tržba za poslední měsíc.
 U každé knížky jsou zobrazeny informace o pořadí prodejů v rámci prodejny, počtu kusů ve skladu, název, prodeje za poslední měsíc a od začátku účetního roku.
 
-Po kliknutí na knížku se zobrazí detailní informace o knížce.\bigskip\bigskip\bigskip\bigskip
+Po kliknutí na knížku se zobrazí detailní informace o knížce.
 
 
-\begin{figure}[h]
-\centering
-\includegraphics[width=\textwidth]{images/zebricek}
-\caption{\emph{Fragment žebříčku prodejů.}} 
-\label{fig:zebricek}
-\end{figure}
+![zebricek](https://user-images.githubusercontent.com/26610601/105232658-fc25e380-5b68-11eb-9485-588256b3de7a.jpg)
 
 
 
-\newpage
-\subsection{Vyhledávání a detail knihy}
+## Vyhledávání a detail knihy
 
 
+Knihu je možné vyhledat podle názvu knihy, naskenováním čárového kódu a nebo ručním zadáním čárového kódu. Po nalezení knihy se zobrazí fragment obsahující detailní informace o knize. 
 
+Z tohoto fragmentu můžete knihu přidat do vratky nebo do objednávky kliknutím červeného tlačítka se symbolem plus.
 
-Knihu je možné vyhledat podle názvu knihy, naskenováním čárového kódu a nebo ručním zadáním čárového kódu (Obr. \ref{fig:main}). Po nalezení knihy se zobrazí fragment obsahující detailní informace o knize. 
-
-Z tohoto fragmentu můžete knihu přidat do vratky nebo do objednávky kliknutím červeného tlačítka se symbolem plus (Obr. \ref{fig:tvorba}).\bigskip\bigskip\bigskip\bigskip
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=\textwidth]{images/detail3}
-\caption{\emph{Fragment skenování čárových kódu a fragment detailu knihy.}}   
-\label{fig:detailFragment}
-\end{figure}
-
+![detail3](https://user-images.githubusercontent.com/26610601/105232730-165fc180-5b69-11eb-9a1e-5b2c59174648.jpg)
 
 \newpage
 \subsection{Vratky a objednávky}
