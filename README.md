@@ -3,9 +3,9 @@
 
 ## První spuštění
 
-Během prvního spuštění Vás aplikace nejdřív požádá o udělení oprávnění ke čtení a ukládání dat z interní paměti zařízení. Tato oprávnění jsou nutná pro tvorbu excelových souborů se seznamem zboží na vrácení a objednání. 
+Během prvního spuštění Vás aplikace požádá o udělení oprávnění ke čtení a ukládání dat z interní paměti zařízení. Tato oprávnění jsou nutná pro tvorbu excelových souborů se seznamem zboží na vrácení a objednání. 
 
-Zároveň se během prvního spuštění rozbalí  přiložená SQLite databáze s čárovými kódy a názvy všech knížek, které firma Knihy Dobrovský prodává. Tato databáze se používá k fulltextovém vyhledávání podle názvu knížky a obsahuje přes 450 000 záznamů, takže v závislosti na výkonu Vašeho zařízení může první spuštění trvat o něco déle. 
+Zároveň se během prvního spuštění rozbalí přiložená SQLite databáze s čárovými kódy a názvy všech knížek, které firma Knihy Dobrovský prodává. Tato databáze se používá k fulltextovém vyhledávání podle názvu knihy a obsahuje přes 450 000 záznamů, takže v závislosti na výkonu Vašeho zařízení může první spuštění trvat o něco déle. 
 
 ![uvodni2](https://user-images.githubusercontent.com/26610601/105231896-e19f3a80-5b67-11eb-8ccd-a161530343a7.png)
 
@@ -13,26 +13,25 @@ Zároveň se během prvního spuštění rozbalí  přiložená SQLite databáze
 
 ## Importování dat pomocí podpůrného programu
 
-
-
 V levém rohu se zobrazí IP adresa  Vašeho počítače, která musí být nastavena v aplikaci.  To se dělá v  "Nastavení IP" v menu aplikace. 
 
 Jakmile je IP adresa nastavená, tak už jenom stačí přetáhnout CSV soubor s daty z analýzy prodejů na ikonu padáku a v menu aplikace zahájit přenos dat do aplikace pomocí tlačítka "Nahrát data z PC". 
 
 Po nahrání dat je aplikace připravená k použití.
 
-![prevodnik2](https://user-images.githubusercontent.com/26610601/105232243-64c09080-5b68-11eb-986f-dc13a453d79d.png)
+
+![prevodnik2](https://user-images.githubusercontent.com/26610601/105240398-59239880-5b6d-11eb-9f41-008d137225b1.png)
 
 
-## Importování dat z FTP serveru
+
+## Importování dat z serveru
 
 
-Tento způsob je mnohem  jednoduší a pohodlnější než ten předchozí. V hlavním menu aplikace stačí kliknout na tlačítko "Nahrát data z FPT".  Poté vybrat prodejnu, vložit heslo a data se stáhnou po kliknutí na tlačítko "Stáhnout data z vybrané prodejny". 
+Tento způsob je mnohem  jednoduší a pohodlnější než ten předchozí. V hlavním menu aplikace stačí kliknout na tlačítko "Nahrát data".  Poté vybrat prodejnu, vložit heslo a data se stáhnou po kliknutí na tlačítko "Stáhnout data z vybrané prodejny". 
 
-V pozadí aplikace se zároveň spustí služba, která v případě změny dat na FTP serveru provede automatickou aktualizaci dat.
+V pozadí aplikace se zároveň spustí služba, která v případě změny dat na serveru provede automatickou aktualizaci dat.
 
-
-![ftp2](https://user-images.githubusercontent.com/26610601/105234249-427c4200-5b6b-11eb-993d-6e636c5bff51.jpg)
+![ftp2](https://user-images.githubusercontent.com/26610601/105240401-59bc2f00-5b6d-11eb-9a07-409458d176f2.jpg)
 
 
 
