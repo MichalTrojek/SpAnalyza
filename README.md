@@ -34,6 +34,8 @@ V pozadí aplikace se zároveň spustí služba, která v případě změny dat 
 
 ![ftp2](https://user-images.githubusercontent.com/26610601/105233099-a998f700-5b69-11eb-9fb6-6d1615732dfe.jpg)
 
+<img src="https://user-images.githubusercontent.com/26610601/105233099-a998f700-5b69-11eb-9fb6-6d1615732dfe.jpge" width="100" height="100">
+
 
 ## Žebříček prodejů
 
