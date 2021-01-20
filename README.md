@@ -15,7 +15,7 @@ Zároveň se během prvního spuštění rozbalí přiložená SQLite databáze 
 
 V levém rohu se zobrazí IP adresa  Vašeho počítače, která musí být nastavena v aplikaci.  To se dělá v  "Nastavení IP" v menu aplikace. 
 
-Jakmile je IP adresa nastavená, tak už jenom stačí přetáhnout CSV soubor s daty z analýzy prodejů na ikonu padáku a v menu aplikace zahájit přenos dat do aplikace pomocí tlačítka "Nahrát data z PC". 
+Jakmile je IP adresa nastavená tak už jenom stačí přetáhnout CSV soubor s daty z analýzy prodejů na ikonu padáku a v menu aplikace zahájit přenos dat do aplikace pomocí tlačítka "Nahrát data z PC". 
 
 Po nahrání dat je aplikace připravená k použití.
 
