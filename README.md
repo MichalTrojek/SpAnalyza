@@ -32,9 +32,8 @@ Tento způsob je mnohem  jednoduší a pohodlnější než ten předchozí. V hl
 V pozadí aplikace se zároveň spustí služba, která v případě změny dat na FTP serveru provede automatickou aktualizaci dat.
 
 
-![ftp2](https://user-images.githubusercontent.com/26610601/105233099-a998f700-5b69-11eb-9fb6-6d1615732dfe.jpg)
+![ftp2](https://user-images.githubusercontent.com/26610601/105234249-427c4200-5b6b-11eb-993d-6e636c5bff51.jpg)
 
-<img src="https://user-images.githubusercontent.com/26610601/105233099-a998f700-5b69-11eb-9fb6-6d1615732dfe.jpge" width="100" height="100">
 
 
 ## Žebříček prodejů
