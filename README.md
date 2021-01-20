@@ -80,6 +80,6 @@ V seznamu knih je možné kliknutím na knihu zobrazit dialog pro změnu množst
 
 ## Exportování seznamů vrátek a objednávek do počítače
 
-K vyexportování excelových souborů do počítače stačí spustit podpůrný program, správně nastavit IP adresu (Obr. \ref{fig:connect}) a v menu aplikace kliknout na "Odeslat data do PC". Exportovaný soubor se vytvoří ve složce jejíž cestu je možné nastavit v nastavení podpůrného programu. Výchozí cesta je cesta k souboru "prevodník.jar".  
+K vyexportování excelových souborů do počítače stačí spustit podpůrný program, správně nastavit IP adresu a v menu aplikace kliknout na "Odeslat data do PC". Exportovaný soubor se vytvoří ve složce jejíž cestu je možné nastavit v nastavení podpůrného programu. Výchozí cesta je cesta k souboru "prevodník.jar".  
 
 ![excel2](https://user-images.githubusercontent.com/26610601/105233417-1dd39a80-5b6a-11eb-814b-6a981b3f8500.png)
